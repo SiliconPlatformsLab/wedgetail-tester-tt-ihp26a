@@ -1,5 +1,14 @@
 ![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/test/badge.svg) ![](../../workflows/fpga/badge.svg)
 
+# Wedgetail TCDE REV01
+This is a Test, Calibration and Design Exploration (TCDE) chip for the Wedgetail project, part of my PhD
+thesis.
+
+The design consists of an SPI interface to a number of configurable ring oscillators and hopefully a DPLL if
+it'll fit.
+
+Most of the contents have been ported and simplified from the upstream, private Wedgetail repo.
+
 # Tiny Tapeout Verilog Project Template
 
 - [Read the documentation for project](docs/info.md)
