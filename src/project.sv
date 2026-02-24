@@ -5,6 +5,14 @@
 
 `default_nettype none
 
+typedef enum logic [2:0] {
+    ROSC_32_1 = 3'd0,
+    ROSC_32_2 = 3'd1,
+    ROSC_64 = 3'd2,
+    ROSC_16 = 3'd3,
+    ROSC_32_OR = 3'd4
+} RingOscType;
+
 module tt_um_wedgetail_tester (
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
@@ -16,20 +24,65 @@ module tt_um_wedgetail_tester (
     input  wire       rst_n     // reset_n - low to reset
 );
 
-  // All output pins must be assigned. If not used, assign to 0.
-  assign uo_out[7:4] = 0;
-  assign uio_out = 0; // we don't use inouts
-  assign uio_oe  = 0; // we don't enable inouts
+    // All output pins must be assigned. If not used, assign to 0.
+    assign uo_out[7:4] = 0;
+    assign uio_out = 0; // we don't use inouts
+    assign uio_oe  = 0; // we don't enable inouts
 
-  // List all unused inputs to prevent warnings
-  wire _unused = &{ena, rst_n, 1'b0};
+    // List all unused inputs to prevent warnings
+    wire _unused = &{ena, rst_n, 1'b0};
 
-  wedgetail_top top (
-    .i_clk (clk),
-    .o_ro_1 (uo_out[0]),
-    .o_ro_2 (uo_out[1]),
-    .o_ro_or (uo_out[2]),
-    .o_clk_raw (uo_out[3])
-  );
+    // OSCILLATORS
+
+    logic ro_32_1;
+    logic ro_32_2;
+    logic ro_16;
+    logic ro_64;
+    logic ro_or;
+
+    (* keep *) ring_osc_ihp130 #(.NUM_STAGES(32)) mod_ro_32_1 (
+        .osc (ro_32_1)
+    );
+
+    (* keep *) ring_osc_ihp130 #(.NUM_STAGES(32)) mod_ro_32_2 (
+        .osc (ro_32_2)
+    );
+
+    (* keep *) ring_osc_ihp130 #(.NUM_STAGES(64)) mod_ro_64 (
+        .osc (ro_64)
+    );
+
+    (* keep *) ring_osc_ihp130 #(.NUM_STAGES(16)) mod_ro_16 (
+        .osc (ro_16)
+    );
+
+    (* keep *) ring_osc_ihp130 #(.NUM_STAGES(16)) mod_ro_32_raw (
+        .osc (uo_out[2])
+    );
+
+    assign ro_or = ro_32_1 | ro_32_2;
+
+    // MUX
+
+    logic mux_out;
+    RingOscType mux_in;
+
+    assign mux_in = RingOscType'(ui_in[2:0]);
+
+    always_comb begin
+        case (mux_in)
+            ROSC_32_1 : mux_out = ro_32_1;
+            ROSC_32_2 : mux_out = ro_32_2;
+            ROSC_64 : mux_out = ro_64;
+            ROSC_16 : mux_out = ro_16;
+            ROSC_32_OR : mux_out = ro_or;
+            default : mux_out = 0;
+        endcase
+    end
+
+    assign uo_out[0] = mux_out;
+
+    // This is for the benefit of LibreLane
+    assign uo_out[1] = clk;
 
 endmodule

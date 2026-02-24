@@ -25,9 +25,9 @@ project:
 # This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).
 pinout:
   # Inputs
-  ui[0]: "sclk" # SPI clock
-  ui[1]: "mosi" # MOSI, we're the peripheral
-  ui[2]: ""
+  ui[0]: "ROSC SEL 0"
+  ui[1]: "ROSC SEL 1"
+  ui[2]: "ROSC SEL 2"
   ui[3]: ""
   ui[4]: ""
   ui[5]: ""
@@ -35,10 +35,10 @@ pinout:
   ui[7]: ""
 
   # Outputs
-  uo[0]: "ROSC 1"
-  uo[1]: "ROSC 2"
-  uo[2]: "ROSC 1 | ROSC 2"
-  uo[3]: "CLK RAW"
+  uo[0]: "ROSC MUX OUT"
+  uo[1]: "CLK RAW"
+  uo[2]: "RAW ROSC 16" # no mux
+  uo[3]: ""
   uo[4]: ""
   uo[5]: ""
   uo[6]: ""
