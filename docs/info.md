@@ -22,6 +22,28 @@ The intent is to:
 
 ## How to test
 
+The first 3 pins, `ROSC SEL[2:0]`, are a 3-bit mux that can be used to select a particular ring oscillator
+test.
+
+Currently, the selectable options are:
+
+
+| **Binary value**    | **Name**      | **Description**    |
+|-----------------|-----------|--------------------|
+| 0 | ROSC_32_1 | First 32 stage osc |
+| 1 | ROSC_32_2 | Second 32 stage osc                   |
+| 2 | ROSC64    | 64 stage osc                   |
+| 3 | ROSC16    | 16 stage osc |
+| 4 | ROSC32_OR | ROSC_32_1 and ROSC\_32_2 OR'd together |
+| 5 | ROSC31    | 31-stage oscillator |
+| 6 | ROSC128   | 128-stage oscillator|
+
+**Note:** Before you get mad at me for saying it won't oscillate because it's even, in all of these designs,
+there is an extra +1 inverter from the feedback tap. So a 32-stage oscillator has 32 inverters in the loop,
+plus 1 feedback inverter, making a 33-stage design. This was confirmed with full parasitics GDS-level SPICE
+simulation to oscillate. On the other hand, the 31-stage oscillator has +1 = 32 inverters total, so may not
+oscillate.
+
 To see the full effectiveness of the design, you will need a high radiation environment, for example a
 Cobalt-60 source, a laser, or a heavy ion accelerator; these sources will fundamentally change the behaviour
 of the chip. Unfortunately, these tools may be slightly challenging to acquire. Consider building your own
@@ -29,5 +51,4 @@ heavy ion accelerator, if appropriate in your area.
 
 ## External hardware
 
-- 14 MHz system clock is required
 - Radiation source required for full demonstration
