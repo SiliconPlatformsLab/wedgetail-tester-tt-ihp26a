@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Your Name
+ * Copyright (c) 2025 M. L. Young
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -17,11 +17,19 @@ module tt_um_wedgetail_tester (
 );
 
   // All output pins must be assigned. If not used, assign to 0.
-  assign uo_out  = ui_in + uio_in;  // Example: ou_out is the sum of ui_in and uio_in
-  assign uio_out = 0;
-  assign uio_oe  = 0;
+  assign uo_out[7:4] = 0;
+  assign uio_out = 0; // we don't use inouts
+  assign uio_oe  = 0; // we don't enable inouts
 
   // List all unused inputs to prevent warnings
-  wire _unused = &{ena, clk, rst_n, 1'b0};
+  wire _unused = &{ena, rst_n, 1'b0};
+
+  wedgetail_top top (
+    .i_clk (clk),
+    .o_ro_1 (uo_out[0]),
+    .o_ro_2 (uo_out[1]),
+    .o_ro_or (uo_out[2]),
+    .o_clk_raw (uo_out[3])
+  );
 
 endmodule

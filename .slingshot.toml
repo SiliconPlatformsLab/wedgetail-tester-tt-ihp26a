@@ -1,0 +1,12 @@
+# Slingshot SystemVerilog language server configuration file
+# https://github.com/mlyoung101/slingshot
+
+# Config file version
+version = "1.0.0"
+
+# List of include directories, relative to project root, to search for SystemVerilog files.
+# Note: The project root directory is usually the Git root directory.
+include_dirs = [
+  "src",
+  # ... any other RTL source directories here ...
+]
