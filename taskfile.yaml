@@ -1,0 +1,32 @@
+version: '3'
+
+vars:
+  ROOT_DIR:
+    sh: pwd
+  DATE:
+    sh: date "+%Y-%m-%d--%H_%M"
+
+tasks:
+  regmap:
+    desc: Generates the register map
+    cmds:
+      - uv run peakrdl html -o docs/html --title "Wedgetail" regmap/wedgetail_spi.rdl
+      - uv run peakrdl markdown -o docs/regmap.md regmap/wedgetail_spi.rdl
+      - uv run python scripts/peakrdl_verilog.py
+      # - uv run peakrdl sv -o rtl/ regmap/wedgetail_spi.rdl
+      # delete extraneous files
+      - rm rtl/wedgetail_spi_tb.cpp rtl/wedgetail_spi_tb.sv rtl/wedgetail_spi_tb_wires_include.vh
+      - rm rtl/wedgetail_spi_wrapper_tb.sv rtl/wedgetail_spi_port_map_include.vh rtl/wedgetail_spi_ports_include.vh
+      - rm rtl/wedgetail_spi_wires_include.vh
+
+  regmap_host:
+    desc: Hosts documentation for the regmap
+    cmds:
+      - cd docs/html; uv run python -m http.server
+
+  install_ihp:
+    desc: Installs the IHP PDK locally
+    cmds:
+      - uv run ciel enable --pdk-family ihp-sg13g2 /c4b8b4e5e7a05f375cca3815d51b3a37721fbf5c
+    status:
+      - test -f ~/.ciel/ciel/ihp-sg13g2/versions/c4b8b4e5e7a05f375cca3815d51b3a37721fbf5c/ihp-sg13g2/libs.tech/magic/ihp-sg13g2.magicrc

@@ -1,0 +1,43 @@
+/* vim: set filetype=systemrdl : */
+property int_sig {
+    // Internal Signal flag, used to prevent SW-read-only signals from being added
+    // to the auto-generated port include file. Not to be confused with SystemRDL's
+    // own internal/external keywords, which are meant for specifiying whether the
+    // SystemRDL compiler should generate the register or not.
+
+    type = boolean;
+    component = field;
+};
+
+addrmap wedgetail_spi {
+    name = "Wedgetail SPI";
+    desc = "Wedgetail SPI interface for Wedgetail TCDE REV01";
+
+    default sw = rw;
+    default hw = r;
+    default	int_sig = false;
+    default accesswidth = 8;
+    default regwidth = 8;
+
+    reg {
+        name = "System Control";
+
+        field {
+            desc = "When any value is written to this register, a power on reset will be performed on the
+            entire device";
+            sw = w;
+            hw = r;
+        } RESET = 0;
+
+        field {
+            desc = "Read/write echo register, for SPI debugging";
+        } ECHO[7:1] = 0x03;
+    } SYS_CTRL;
+
+    reg {
+        name = "Ring Oscillator Enable Select";
+        field {
+            desc = "Select the bits enabled by the configurable ring oscillator.";
+        } data[7:0];
+    } ROSC_EN_SEL;
+};
