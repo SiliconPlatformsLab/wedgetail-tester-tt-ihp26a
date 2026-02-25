@@ -13,10 +13,10 @@ typedef enum logic [2:0] {
     ROSC_32_OR = 3'd4,
     ROSC_31 = 3'd5,
     ROSC_128 = 3'd6,
-    ROSC_256 = 3'd7
+    ROSC_32_AND = 3'd7
 } RingOscType;
 
-module tt_um_wedgetail_tester (
+module tt_um_mlyoung_wedgetail (
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
     input  wire [7:0] uio_in,   // IOs: Input path
@@ -26,7 +26,6 @@ module tt_um_wedgetail_tester (
     input  wire       clk,      // clock
     input  wire       rst_n     // reset_n - low to reset
 );
-
     // All output pins must be assigned. If not used, assign to 0.
     assign uo_out[7:5] = 0;
     assign uio_out = 0; // we don't use inouts
@@ -42,9 +41,9 @@ module tt_um_wedgetail_tester (
     logic ro_16;
     logic ro_64;
     logic ro_or;
+    logic ro_and;
     logic ro_31;
     logic ro_128;
-    logic ro_256;
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(32)) mod_ro_32_1 (
         .osc (ro_32_1)
@@ -74,11 +73,8 @@ module tt_um_wedgetail_tester (
         .osc (ro_128)
     );
 
-    (* keep *) ring_osc_ihp130 #(.NUM_STAGES(256)) mod_ro_256 (
-        .osc (ro_256)
-    );
-
     assign ro_or = ro_32_1 | ro_32_2;
+    assign ro_and = ro_32_1 & ro_32_2;
 
     // MUX
 
@@ -96,7 +92,7 @@ module tt_um_wedgetail_tester (
             ROSC_32_OR : mux_out = ro_or;
             ROSC_31 : mux_out = ro_31;
             ROSC_128 : mux_out = ro_128;
-            ROSC_256 : mux_out = ro_256;
+            ROSC_32_AND : mux_out = ro_and;
             default : mux_out = 0;
         endcase
     end
