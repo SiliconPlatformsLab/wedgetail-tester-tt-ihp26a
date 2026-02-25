@@ -13,7 +13,7 @@ typedef enum logic [2:0] {
     ROSC_32_OR = 3'd4,
     ROSC_31 = 3'd5,
     ROSC_128 = 3'd6,
-    ROSC_256 = 3'd7,
+    ROSC_256 = 3'd7
 } RingOscType;
 
 module tt_um_wedgetail_tester (

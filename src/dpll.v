@@ -1,7 +1,7 @@
 // Upstream: https://github.com/jsloan256/dpll/blob/main/dpll.sv
 
 // literally do not care
-/* verilator lint_off  */
+/*verilator lint_off*/
 
 module dpll
 (
