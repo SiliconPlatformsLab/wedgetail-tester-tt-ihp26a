@@ -41,7 +41,7 @@ pinout:
   uo[3]: "DPLL CLK" # 300 KHz clock through DPLL
   uo[4]: "DPLL CLK FMULT" # 300 KHz clock through DPLL, with 8x frequency multiplier
   uo[5]: "MISO"
-  uo[6]: "ROSC"
+  uo[6]: "ROSC SPI OUT" # configurable ring oscillator over SPI
   uo[7]: "RAW ROSC 32 DRIVE 4" # raw ring oscillator, x32, with drive strength 4
 
   # Bidirectional pins
