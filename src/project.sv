@@ -28,12 +28,12 @@ module tt_um_wedgetail_tester (
 );
 
     // All output pins must be assigned. If not used, assign to 0.
-    assign uo_out[7:3] = 0;
+    assign uo_out[7:5] = 0;
     assign uio_out = 0; // we don't use inouts
     assign uio_oe  = 0; // we don't enable inouts
 
     // List all unused inputs to prevent warnings
-    wire _unused = &{ena, rst_n, ui_in[7:3], 1'b0};
+    wire _unused = &{ena, rst_n, ui_in[7:4], 1'b0};
 
     // OSCILLATORS
 
