@@ -21,11 +21,12 @@ GDS_NAME = "macros/wedgetail_logo.gds"
 BOUNDARY_LAYERS = [
     # IHP130
     (189, 0), # prBoundary
-    (8, 23), # metal1 nofill
-    (10, 23), # metal2 nofill
-    (30, 23), # metal3 nofill
-    (50, 23), # metal4 nofill
-    (67, 23), # metal5 nofill
+    # FIXME doesn't work, but probably should?
+    # (8, 20), # metal1 mask
+    # (10, 20), # metal2 mask
+    # (30, 20), # metal3 mask
+    # (50, 20), # metal4 mask
+    # (67, 20), # metal5 mask
 
     # SKY130
     # (189, 0), # prBndry, boundary
@@ -36,11 +37,9 @@ BOUNDARY_LAYERS = [
     # (117, 4), # cmm5, waffle-drop
 ]
 PIXEL_LAYERS = [
-    # (8, 0), # metal1 drawing
-    # (10, 0), # metal2 drawing
-    # (30, 0), # metal3 drawing
-
-    (126, 0), # top metal 1, drawing
+    (8, 0), # metal1 drawing
+    (10, 0), # metal2 drawing
+    (30, 0), # metal3 drawing
 
     # SKY130
     # (68, 20), # met1, drawing
