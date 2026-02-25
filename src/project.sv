@@ -99,4 +99,20 @@ module tt_um_wedgetail_tester (
     // This is for the benefit of LibreLane
     assign uo_out[1] = clk;
 
+    logic dpll_clk_fout;
+    logic dpll_clk8x_fout;
+
+
+    // DPLL
+    dpll dpll (
+        .clk (clk),
+        .reset (~rst_n),
+        .clk_fin (uio_in[3]),
+        .clk_fout (dpll_clk_fout),
+        .clk8x_fout (dpll_clk8x_fout)
+    );
+
+    assign uo_out[3] = dpll_clk_fout;
+    assign uo_out[4] = dpll_clk8x_fout;
+
 endmodule
