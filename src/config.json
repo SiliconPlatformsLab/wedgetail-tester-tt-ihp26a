@@ -86,5 +86,6 @@
   },
   "IGNORE_DISCONNECTED_MODULES": [
     "logo", "wedgetail_logo"
-  ]
+  ],
+
 }
