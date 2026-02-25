@@ -10,42 +10,19 @@ PNG_NAME = "./art/logo.png"
 CELL_NAME = "wedgetail_logo"
 GDS_NAME = "macros/wedgetail_logo.gds"
 
-# REFERENCES
-# so we don't clash: https://tinytapeout.com/specs/analog/
-# **NO METAL 5**
-# layers: https://ihp-open-pdk-docu.readthedocs.io/en/latest/layout_rules/02_layer_table.html#layer-table
-# layers: https://ihp-open-pdk-docu.readthedocs.io/en/latest/verification/lvs/02_layers.html
-# sky130 for comparison: https://skywater-pdk.readthedocs.io/en/main/rules/layers.html#gds-layers-information
-# stackup diagram: https://ihp-open-pdk-docu.readthedocs.io/en/latest/process_specs/01_01_main_process_cross_sec.html
-
 BOUNDARY_LAYERS = [
-    # IHP130
-    (189, 0), # prBoundary
-    # FIXME doesn't work, but probably should?
-    # (8, 20), # metal1 mask
-    # (10, 20), # metal2 mask
-    # (30, 20), # metal3 mask
-    # (50, 20), # metal4 mask
-    # (67, 20), # metal5 mask
-
-    # SKY130
-    # (189, 0), # prBndry, boundary
-    # (62, 24), # cmm1, waffle-drop
-    # (105, 52), # cmm2, waffle-drop
-    # (107, 24), # cmm3, waffle-drop
-    # (112, 4), # cmm4, waffle-drop
-    # (117, 4), # cmm5, waffle-drop
+    (235, 4), # prBndry, boundary
+    (62, 24), # cmm1, waffle-drop
+    (105, 52), # cmm2, waffle-drop
+    (107, 24), # cmm3, waffle-drop
+    (112, 4), # cmm4, waffle-drop
+    (117, 4), # cmm5, waffle-drop
 ]
 PIXEL_LAYERS = [
-    (8, 0), # metal1 drawing
-    (10, 0), # metal2 drawing
-    (30, 0), # metal3 drawing
-
-    # SKY130
-    # (68, 20), # met1, drawing
-    # (69, 20), # met2, drawing
-    # # (70, 20), # met3, drawing
-    # # (71, 20), # met4, drawing
+    (68, 20), # met1, drawing
+    (69, 20), # met2, drawing
+    # (70, 20), # met3, drawing
+    # (71, 20), # met4, drawing
 ]
 PIXEL_SIZE = 0.28 # um
 VERBOSITY = 2
