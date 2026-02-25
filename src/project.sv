@@ -12,7 +12,8 @@ typedef enum logic [2:0] {
     ROSC_16 = 3'd3,
     ROSC_32_OR = 3'd4,
     ROSC_31 = 3'd5,
-    ROSC_128 = 3'd6
+    ROSC_128 = 3'd6,
+    ROSC_256 = 3'd7,
 } RingOscType;
 
 module tt_um_wedgetail_tester (
@@ -43,6 +44,7 @@ module tt_um_wedgetail_tester (
     logic ro_or;
     logic ro_31;
     logic ro_128;
+    logic ro_256;
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(32)) mod_ro_32_1 (
         .osc (ro_32_1)
@@ -72,6 +74,10 @@ module tt_um_wedgetail_tester (
         .osc (ro_128)
     );
 
+    (* keep *) ring_osc_ihp130 #(.NUM_STAGES(256)) mod_ro_256 (
+        .osc (ro_256)
+    );
+
     assign ro_or = ro_32_1 | ro_32_2;
 
     // MUX
@@ -90,6 +96,7 @@ module tt_um_wedgetail_tester (
             ROSC_32_OR : mux_out = ro_or;
             ROSC_31 : mux_out = ro_31;
             ROSC_128 : mux_out = ro_128;
+            ROSC_256 : mux_out = ro_256;
             default : mux_out = 0;
         endcase
     end
@@ -102,8 +109,8 @@ module tt_um_wedgetail_tester (
     logic dpll_clk_fout;
     logic dpll_clk8x_fout;
 
-
     // DPLL
+
     dpll dpll (
         .clk (clk),
         .reset (~rst_n),
