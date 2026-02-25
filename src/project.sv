@@ -27,7 +27,7 @@ module tt_um_mlyoung_wedgetail (
     input  wire       rst_n     // reset_n - low to reset
 );
     // All output pins must be assigned. If not used, assign to 0.
-    assign uo_out[7:5] = 0;
+    assign uo_out[6:5] = 0;
     assign uio_out = 0; // we don't use inouts
     assign uio_oe  = 0; // we don't enable inouts
 
@@ -44,6 +44,7 @@ module tt_um_mlyoung_wedgetail (
     logic ro_and;
     logic ro_31;
     logic ro_128;
+    logic ro_32_drive4;
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(32)) mod_ro_32_1 (
         .osc (ro_32_1)
@@ -71,6 +72,10 @@ module tt_um_mlyoung_wedgetail (
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(128)) mod_ro_128 (
         .osc (ro_128)
+    );
+
+    (* keep *) ring_osc_drive4_ihp130 #(.NUM_STAGES(32)) mod_ro_32_drive4 (
+        .osc (uo_out[7])
     );
 
     assign ro_or = ro_32_1 | ro_32_2;
