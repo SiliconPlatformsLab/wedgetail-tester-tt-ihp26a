@@ -16,8 +16,6 @@ typedef enum logic [2:0] {
     ROSC_32_AND = 3'd7
 } RingOscType;
 
-import spi_decoder_pkg::*;
-
 module tt_um_mlyoung_wedgetail (
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
@@ -40,9 +38,9 @@ module tt_um_mlyoung_wedgetail (
 
     logic spi_decoder_wr_en;
     logic spi_decoder_rd_en;
-    logic [DATA_W-1:0] spi_decoder_reg_addr;
-    logic [DATA_W-1:0] spi_wdata;
-    logic [DATA_W-1:0] spi_rdata;
+    logic [7:0] spi_decoder_reg_addr;
+    logic [7:0] spi_wdata;
+    logic [7:0] spi_rdata;
 
     logic reg_reset;
     logic [6:0] reg_echo;
