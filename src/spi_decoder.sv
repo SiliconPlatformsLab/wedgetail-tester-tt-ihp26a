@@ -14,8 +14,6 @@
 
 // verilator lint_off IMPORTSTAR
 
-import spi_decoder_pkg::*;
-
 // SPI Decoder States. Don't specify values - let the compiler decide the optimal encoding.
 typedef enum logic [1:0] {
   ST_IDLE    ,  // Waiting for Chip Select to assert, or nothing to do after a Commit
