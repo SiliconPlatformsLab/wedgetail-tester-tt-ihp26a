@@ -12,10 +12,11 @@ typedef enum logic [2:0] {
     ROSC_16 = 3'd3,
     ROSC_32_OR = 3'd4,
     ROSC_31 = 3'd5,
-    ROSC_128 = 3'd6
+    ROSC_128 = 3'd6,
+    ROSC_32_AND = 3'd7
 } RingOscType;
 
-module tt_um_wedgetail_tester (
+module tt_um_mlyoung_wedgetail (
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
     input  wire [7:0] uio_in,   // IOs: Input path
@@ -25,20 +26,13 @@ module tt_um_wedgetail_tester (
     input  wire       clk,      // clock
     input  wire       rst_n     // reset_n - low to reset
 );
-
     // All output pins must be assigned. If not used, assign to 0.
-    assign uo_out[7:3] = 0;
+    assign uo_out[6:5] = 0;
     assign uio_out = 0; // we don't use inouts
     assign uio_oe  = 0; // we don't enable inouts
 
     // List all unused inputs to prevent warnings
-    wire _unused = &{ena, rst_n, ui_in[7:3], 1'b0};
-
-    // LOGO
-
-    (* keep *)
-    wedgetail_logo logo();
-
+    wire _unused = &{ena, rst_n, ui_in[7:4], 1'b0};
 
     // OSCILLATORS
 
@@ -47,8 +41,10 @@ module tt_um_wedgetail_tester (
     logic ro_16;
     logic ro_64;
     logic ro_or;
+    logic ro_and;
     logic ro_31;
     logic ro_128;
+    logic ro_32_drive4;
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(32)) mod_ro_32_1 (
         .osc (ro_32_1)
@@ -78,7 +74,12 @@ module tt_um_wedgetail_tester (
         .osc (ro_128)
     );
 
+    (* keep *) ring_osc_drive4_ihp130 #(.NUM_STAGES(32)) mod_ro_32_drive4 (
+        .osc (uo_out[7])
+    );
+
     assign ro_or = ro_32_1 | ro_32_2;
+    assign ro_and = ro_32_1 & ro_32_2;
 
     // MUX
 
@@ -96,6 +97,7 @@ module tt_um_wedgetail_tester (
             ROSC_32_OR : mux_out = ro_or;
             ROSC_31 : mux_out = ro_31;
             ROSC_128 : mux_out = ro_128;
+            ROSC_32_AND : mux_out = ro_and;
             default : mux_out = 0;
         endcase
     end
@@ -104,5 +106,21 @@ module tt_um_wedgetail_tester (
 
     // This is for the benefit of LibreLane
     assign uo_out[1] = clk;
+
+    logic dpll_clk_fout;
+    logic dpll_clk8x_fout;
+
+    // DPLL
+
+    dpll dpll (
+        .clk (clk),
+        .reset (~rst_n),
+        .clk_fin (uio_in[3]),
+        .clk_fout (dpll_clk_fout),
+        .clk8x_fout (dpll_clk8x_fout)
+    );
+
+    assign uo_out[3] = dpll_clk_fout;
+    assign uo_out[4] = dpll_clk8x_fout;
 
 endmodule

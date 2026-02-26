@@ -11,26 +11,6 @@ it'll fit.
 
 Most of the contents have been ported and simplified from the upstream, private Wedgetail repo.
 
-## Generate art
-Based on: https://docs.google.com/document/d/1Ll64tvDcXpNJ4eiEX2WIENWlGGORSkXifmeXCHYlONU/edit?tab=t.0 (thanks
-TinyTapeout Discord)
-
-Requirements:
-- Nix configured with the FOSSi cache (see upstream Wedgetail repo)
-
-```bash
-uv venv --python 3.12
-uv run
-uv pip install -r tt/requirements.txt
-source .venv/bin/activate.fish
-
-# generate the art GDS
-python make_art.py -v
-
-# setup the PDK
-ciel enable --pdk ihp-sg13g2 a2bf8ea81aee7d0fcdd6d62168edca0d7d0bcb08
-```
-
 # Tiny Tapeout Verilog Project Template
 
 - [Read the documentation for project](docs/info.md)
