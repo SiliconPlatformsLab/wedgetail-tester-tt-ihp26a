@@ -34,4 +34,4 @@ exporter = VerilogExporter(
     }
 )
 
-exporter.export(root, "rtl", signal_overrides={})
+exporter.export(root, "src", signal_overrides={})

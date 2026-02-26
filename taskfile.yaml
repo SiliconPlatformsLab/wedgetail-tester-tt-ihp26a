@@ -13,11 +13,11 @@ tasks:
       - uv run peakrdl html -o docs/html --title "Wedgetail" regmap/wedgetail_spi.rdl
       - uv run peakrdl markdown -o docs/regmap.md regmap/wedgetail_spi.rdl
       - uv run python scripts/peakrdl_verilog.py
-      # - uv run peakrdl sv -o rtl/ regmap/wedgetail_spi.rdl
+      # - uv run peakrdl sv -o src/ regmap/wedgetail_spi.rdl
       # delete extraneous files
-      - rm rtl/wedgetail_spi_tb.cpp rtl/wedgetail_spi_tb.sv rtl/wedgetail_spi_tb_wires_include.vh
-      - rm rtl/wedgetail_spi_wrapper_tb.sv rtl/wedgetail_spi_port_map_include.vh rtl/wedgetail_spi_ports_include.vh
-      - rm rtl/wedgetail_spi_wires_include.vh
+      - rm src/wedgetail_spi_tb.cpp src/wedgetail_spi_tb.sv src/wedgetail_spi_tb_wires_include.vh
+      - rm src/wedgetail_spi_wrapper_tb.sv src/wedgetail_spi_port_map_include.vh src/wedgetail_spi_ports_include.vh
+      - rm src/wedgetail_spi_wires_include.vh
 
   regmap_host:
     desc: Hosts documentation for the regmap
