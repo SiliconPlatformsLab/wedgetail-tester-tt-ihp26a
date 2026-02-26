@@ -5,15 +5,18 @@
 
 `default_nettype none
 
-typedef enum logic [2:0] {
-    ROSC_32_1 = 3'd0,
-    ROSC_32_2 = 3'd1,
-    ROSC_64 = 3'd2,
-    ROSC_16 = 3'd3,
-    ROSC_32_OR = 3'd4,
-    ROSC_31 = 3'd5,
-    ROSC_128 = 3'd6,
-    ROSC_32_AND = 3'd7
+typedef enum logic [3:0] {
+    ROSC_32_1 = 4'd0,
+    ROSC_32_2 = 4'd1,
+    ROSC_64 = 4'd2,
+    ROSC_16 = 4'd3,
+    ROSC_32_OR = 4'd4,
+    ROSC_31 = 4'd5,
+    ROSC_128 = 4'd6,
+    ROSC_32_AND = 4'd7,
+    ROSC_32_DRIVE_4 = 4'd8,
+    ROSC_256 = 4'd9,
+    ROSC_256_DRIVE_4 = 4'd10
 } RingOscType;
 
 module tt_um_mlyoung_wedgetail (
@@ -27,12 +30,58 @@ module tt_um_mlyoung_wedgetail (
     input  wire       rst_n     // reset_n - low to reset
 );
     // All output pins must be assigned. If not used, assign to 0.
-    assign uo_out[6:5] = 0;
     assign uio_out = 0; // we don't use inouts
     assign uio_oe  = 0; // we don't enable inouts
 
     // List all unused inputs to prevent warnings
-    wire _unused = &{ena, rst_n, ui_in[7:4], 1'b0};
+    wire _unused = &{ena, rst_n, 1'b0};
+
+    // OUTPUTS
+    logic o_rosc_mux_out;
+    logic o_rosc_32_no_mux;
+    logic o_dpll_clk;
+    logic o_dpll_clk_fmult;
+    logic o_miso;
+    logic o_rosc_spi_out;
+
+    // SPI
+
+    logic spi_decoder_wr_en;
+    logic spi_decoder_rd_en;
+    logic [7:0] spi_decoder_reg_addr;
+    logic [7:0] spi_wdata;
+    logic [7:0] spi_rdata;
+
+    logic reg_reset;
+    logic [6:0] reg_echo;
+    logic [7:0] reg_rosc_en_sel;
+
+    spi_decoder spi_decoder_mod (
+        .rst_n (rst_n),
+        .i_spi_clk (clk),
+        .i_spi_ssn (ui_in[6]),
+        .i_spi_mosi (ui_in[5]),
+        .o_spi_miso (o_miso),
+        .o_reg_wr_en (spi_decoder_wr_en),
+        .o_reg_rd_en (spi_decoder_rd_en),
+        .o_reg_addr (spi_decoder_reg_addr), // this is a full 8-bit word for ease of transmission
+        .o_reg_wdata (spi_wdata),
+        .i_reg_rdata (spi_rdata)
+    );
+
+    wedgetail_spi_rf spi_regfile_mod (
+        .clk (clk),
+        .resetn (rst_n),
+        .SYS_CTRL_RESET_q (reg_reset),
+        .SYS_CTRL_ECHO_q (reg_echo),
+        .ROSC_EN_SEL_data_q (reg_rosc_en_sel),
+        .valid (spi_decoder_wr_en | spi_decoder_rd_en),
+        .read (~spi_decoder_wr_en),
+        .addr (spi_decoder_reg_addr[0]), // take lower 1 bit, we only have 2 registers
+        .wdata (spi_wdata),
+        .wmask (1'b1), // per byte (so we only need one)
+        .rdata (spi_rdata)
+    );
 
     // LOGO
 
@@ -51,6 +100,8 @@ module tt_um_mlyoung_wedgetail (
     logic ro_31;
     logic ro_128;
     logic ro_32_drive4;
+    logic ro_256;
+    logic ro_256_drive4;
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(32)) mod_ro_32_1 (
         .osc (ro_32_1)
@@ -69,7 +120,7 @@ module tt_um_mlyoung_wedgetail (
     );
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(32)) mod_ro_32_raw (
-        .osc (uo_out[2])
+        .osc (o_rosc_32_no_mux)
     );
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(31)) mod_ro_31 (
@@ -81,7 +132,20 @@ module tt_um_mlyoung_wedgetail (
     );
 
     (* keep *) ring_osc_drive4_ihp130 #(.NUM_STAGES(32)) mod_ro_32_drive4 (
-        .osc (uo_out[7])
+        .osc (ro_32_drive4)
+    );
+
+    (* keep *) ring_osc_ihp130 #(.NUM_STAGES(256)) mod_ro_256 (
+        .osc (ro_256)
+    );
+
+    (* keep *) ring_osc_drive4_ihp130 #(.NUM_STAGES(256)) mod_ro_256_drive4 (
+        .osc (ro_256_drive4)
+    );
+
+    (* keep *) ring_osc_prog_ihp130 #(.NUM_STAGES(8)) mod_ro_prog (
+        .coding (reg_rosc_en_sel),
+        .osc (o_rosc_spi_out)
     );
 
     assign ro_or = ro_32_1 | ro_32_2;
@@ -89,44 +153,46 @@ module tt_um_mlyoung_wedgetail (
 
     // MUX
 
-    logic mux_out;
     RingOscType mux_in;
 
-    assign mux_in = RingOscType'(ui_in[2:0]);
+    assign mux_in = RingOscType'(ui_in[3:0]);
 
     always_comb begin
         case (mux_in)
-            ROSC_32_1 : mux_out = ro_32_1;
-            ROSC_32_2 : mux_out = ro_32_2;
-            ROSC_64 : mux_out = ro_64;
-            ROSC_16 : mux_out = ro_16;
-            ROSC_32_OR : mux_out = ro_or;
-            ROSC_31 : mux_out = ro_31;
-            ROSC_128 : mux_out = ro_128;
-            ROSC_32_AND : mux_out = ro_and;
-            default : mux_out = 0;
+            ROSC_32_1 : o_rosc_mux_out = ro_32_1;
+            ROSC_32_2 : o_rosc_mux_out = ro_32_2;
+            ROSC_64 : o_rosc_mux_out = ro_64;
+            ROSC_16 : o_rosc_mux_out = ro_16;
+            ROSC_32_OR : o_rosc_mux_out = ro_or;
+            ROSC_31 : o_rosc_mux_out = ro_31;
+            ROSC_128 : o_rosc_mux_out = ro_128;
+            ROSC_32_AND : o_rosc_mux_out = ro_and;
+            ROSC_32_DRIVE_4 : o_rosc_mux_out = ro_32_drive4;
+            ROSC_256 : o_rosc_mux_out = ro_256;
+            ROSC_256_DRIVE_4 : o_rosc_mux_out = ro_256_drive4;
+            default : o_rosc_mux_out = 0;
         endcase
     end
-
-    assign uo_out[0] = mux_out;
-
-    // This is for the benefit of LibreLane
-    assign uo_out[1] = clk;
-
-    logic dpll_clk_fout;
-    logic dpll_clk8x_fout;
 
     // DPLL
 
     dpll dpll (
         .clk (clk),
         .reset (~rst_n),
-        .clk_fin (uio_in[3]),
-        .clk_fout (dpll_clk_fout),
-        .clk8x_fout (dpll_clk8x_fout)
+        .clk_fin (uio_in[4]),
+        .clk_fout (o_dpll_clk),
+        .clk8x_fout (o_dpll_clk_fmult)
     );
 
-    assign uo_out[3] = dpll_clk_fout;
-    assign uo_out[4] = dpll_clk8x_fout;
+    // ASSIGN OUTPUTS
+
+    assign uo_out[0] = o_rosc_mux_out;
+    assign uo_out[1] = 0;
+    assign uo_out[2] = o_rosc_32_no_mux;
+    assign uo_out[3] = o_dpll_clk;
+    assign uo_out[4] = o_dpll_clk_fmult;
+    assign uo_out[5] = o_miso;
+    assign uo_out[6] = o_rosc_spi_out;
+    assign uo_out[7] = 0;
 
 endmodule
