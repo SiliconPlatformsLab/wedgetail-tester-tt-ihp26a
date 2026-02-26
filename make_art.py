@@ -39,8 +39,8 @@ PIXEL_LAYERS = [
     # (8, 0), # metal1 drawing
     # (10, 0), # metal2 drawing
     # (30, 0), # metal3 drawing
-
-    (126, 0), # top metal 1, drawing
+    (50, 0), # metal4 drawing
+    # (126, 0), # top metal 1, drawing
 
     # SKY130
     # (68, 20), # met1, drawing
@@ -48,7 +48,7 @@ PIXEL_LAYERS = [
     # # (70, 20), # met3, drawing
     # # (71, 20), # met4, drawing
 ]
-PIXEL_SIZE = 0.28 # um
+PIXEL_SIZE = 0.15 # um
 VERBOSITY = 2
 
 # Process arguments
