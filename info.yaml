@@ -20,6 +20,10 @@ project:
     - "project.sv"
     - "ring_osc_ihp130.sv"
     - "dpll.v"
+    - "spi_decoder.sv"
+    - "wedgetail_spi_rf.sv"
+    - "inv_en_ihp130.sv"
+    - "programmable_ring_osc_ihp130.sv"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 # This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).
@@ -29,7 +33,7 @@ pinout:
   ui[1]: "ROSC SEL 1"
   ui[2]: "ROSC SEL 2"
   ui[3]: "DPLL CLK 300 KHz" # 300 KHz input clock for DPLL
-  ui[4]: "SCLK" # SPI clock
+  ui[4]: ""
   ui[5]: "MOSI"
   ui[6]: "CS" # Chip Select
   ui[7]: ""
@@ -37,7 +41,7 @@ pinout:
   # Outputs
   uo[0]: "ROSC MUX OUT"
   uo[1]: "CLK RAW" # system clock passthru
-  uo[2]: "RAW ROSC 16" # no mux
+  uo[2]: "RAW ROSC 16" # no mux, 16-channel ROSC
   uo[3]: "DPLL CLK" # 300 KHz clock through DPLL
   uo[4]: "DPLL CLK FMULT" # 300 KHz clock through DPLL, with 8x frequency multiplier
   uo[5]: "MISO"
