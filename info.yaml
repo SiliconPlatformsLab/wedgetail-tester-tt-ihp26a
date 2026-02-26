@@ -32,21 +32,21 @@ pinout:
   ui[0]: "ROSC SEL 0" # ring osc mux select
   ui[1]: "ROSC SEL 1"
   ui[2]: "ROSC SEL 2"
-  ui[3]: "DPLL CLK 300 KHz" # 300 KHz input clock for DPLL
-  ui[4]: ""
+  ui[3]: "ROSC SEL 3"
+  ui[4]: "DPLL CLK 300 KHz" # 300 KHz input clock for DPLL
   ui[5]: "MOSI"
   ui[6]: "CS" # Chip Select
   ui[7]: ""
 
   # Outputs
   uo[0]: "ROSC MUX OUT"
-  uo[1]: "CLK RAW" # system clock passthru
-  uo[2]: "RAW ROSC 16" # no mux, 16-channel ROSC
+  uo[1]: ""
+  uo[2]: "ROSC 32 NO MUX" # no mux, 32 ROSC
   uo[3]: "DPLL CLK" # 300 KHz clock through DPLL
   uo[4]: "DPLL CLK FMULT" # 300 KHz clock through DPLL, with 8x frequency multiplier
   uo[5]: "MISO"
   uo[6]: "ROSC SPI OUT" # configurable ring oscillator over SPI
-  uo[7]: "RAW ROSC 32 DRIVE 4" # raw ring oscillator, x32, with drive strength 4
+  uo[7]: ""
 
   # Bidirectional pins
   uio[0]: ""

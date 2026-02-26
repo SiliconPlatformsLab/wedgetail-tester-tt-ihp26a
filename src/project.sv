@@ -5,15 +5,16 @@
 
 `default_nettype none
 
-typedef enum logic [2:0] {
-    ROSC_32_1 = 3'd0,
-    ROSC_32_2 = 3'd1,
-    ROSC_64 = 3'd2,
-    ROSC_16 = 3'd3,
-    ROSC_32_OR = 3'd4,
-    ROSC_31 = 3'd5,
-    ROSC_128 = 3'd6,
-    ROSC_32_AND = 3'd7
+typedef enum logic [3:0] {
+    ROSC_32_1 = 4'd0,
+    ROSC_32_2 = 4'd1,
+    ROSC_64 = 4'd2,
+    ROSC_16 = 4'd3,
+    ROSC_32_OR = 4'd4,
+    ROSC_31 = 4'd5,
+    ROSC_128 = 4'd6,
+    ROSC_32_AND = 4'd7,
+    ROSC_32_DRIVE_4 = 4'd8
 } RingOscType;
 
 module tt_um_mlyoung_wedgetail (
@@ -31,7 +32,7 @@ module tt_um_mlyoung_wedgetail (
     assign uio_oe  = 0; // we don't enable inouts
 
     // List all unused inputs to prevent warnings
-    wire _unused = &{ena, rst_n, ui_in[4], ui_in[7], 1'b0};
+    wire _unused = &{ena, rst_n, 1'b0};
 
     // SPI
 
@@ -48,8 +49,8 @@ module tt_um_mlyoung_wedgetail (
     spi_decoder spi_decoder_mod (
         .rst_n (rst_n),
         .i_spi_clk (clk),
-        .i_spi_ssn (1'b1),
-        .i_spi_mosi (ui_in[6]),
+        .i_spi_ssn (ui_in[6]),
+        .i_spi_mosi (ui_in[5]),
         .o_spi_miso (uo_out[5]),
         .o_reg_wr_en (spi_decoder_wr_en),
         .o_reg_rd_en (spi_decoder_rd_en),
@@ -113,7 +114,7 @@ module tt_um_mlyoung_wedgetail (
     );
 
     (* keep *) ring_osc_drive4_ihp130 #(.NUM_STAGES(32)) mod_ro_32_drive4 (
-        .osc (uo_out[7])
+        .osc (ro_32_drive4)
     );
 
     ring_osc_prog_ihp130 #(.NUM_STAGES(8)) mod_ro_prog (
@@ -129,7 +130,7 @@ module tt_um_mlyoung_wedgetail (
     logic mux_out;
     RingOscType mux_in;
 
-    assign mux_in = RingOscType'(ui_in[2:0]);
+    assign mux_in = RingOscType'(ui_in[3:0]);
 
     always_comb begin
         case (mux_in)
@@ -141,29 +142,25 @@ module tt_um_mlyoung_wedgetail (
             ROSC_31 : mux_out = ro_31;
             ROSC_128 : mux_out = ro_128;
             ROSC_32_AND : mux_out = ro_and;
+            ROSC_32_DRIVE_4 : mux_out = ro_32_drive4;
             default : mux_out = 0;
         endcase
     end
 
     assign uo_out[0] = mux_out;
 
-    // This is for the benefit of LibreLane
-    assign uo_out[1] = clk;
-
-    logic dpll_clk_fout;
-    logic dpll_clk8x_fout;
-
     // DPLL
 
     dpll dpll (
         .clk (clk),
         .reset (~rst_n),
-        .clk_fin (uio_in[3]),
-        .clk_fout (dpll_clk_fout),
-        .clk8x_fout (dpll_clk8x_fout)
+        .clk_fin (uio_in[4]),
+        .clk_fout (uo_out[3]),
+        .clk8x_fout (uo_out[4])
     );
 
-    assign uo_out[3] = dpll_clk_fout;
-    assign uo_out[4] = dpll_clk8x_fout;
+    // unused
+    assign uo_out[1] = 0;
+    assign uo_out[7] = 0;
 
 endmodule
