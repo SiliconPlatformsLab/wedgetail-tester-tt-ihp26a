@@ -16,6 +16,8 @@ typedef enum logic [2:0] {
     ROSC_32_AND = 3'd7
 } RingOscType;
 
+import spi_decoder_pkg::*;
+
 module tt_um_mlyoung_wedgetail (
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
@@ -27,12 +29,51 @@ module tt_um_mlyoung_wedgetail (
     input  wire       rst_n     // reset_n - low to reset
 );
     // All output pins must be assigned. If not used, assign to 0.
-    assign uo_out[6:5] = 0;
+    assign uo_out[6] = 0;
     assign uio_out = 0; // we don't use inouts
     assign uio_oe  = 0; // we don't enable inouts
 
     // List all unused inputs to prevent warnings
     wire _unused = &{ena, rst_n, ui_in[7:4], 1'b0};
+
+    // SPI
+
+    logic spi_decoder_wr_en;
+    logic spi_decoder_rd_en;
+    logic [DATA_W-1:0] spi_decoder_reg_addr;
+    logic [DATA_W-1:0] spi_wdata;
+    logic [DATA_W-1:0] spi_rdata;
+
+    logic reg_reset;
+    logic [6:0] reg_echo;
+    logic [7:0] reg_rosc_en_sel;
+
+    spi_decoder spi_decoder_mod (
+        .rst_n (rst_n),
+        .i_spi_clk (clk),
+        .i_spi_ssn (1'b1),
+        .i_spi_mosi (ui_in[6]),
+        .o_spi_miso (uo_out[5]),
+        .o_reg_wr_en (spi_decoder_wr_en),
+        .o_reg_rd_en (spi_decoder_rd_en),
+        .o_reg_addr (spi_decoder_reg_addr), // this is a full 8-bit word for ease of transmission
+        .o_reg_wdata (spi_wdata),
+        .i_reg_rdata (spi_rdata)
+    );
+
+    wedgetail_spi_rf spi_regfile_mod (
+        .clk (clk),
+        .resetn (rst_n),
+        .SYS_CTRL_RESET_q (reg_reset),
+        .SYS_CTRL_ECHO_q (reg_echo),
+        .ROSC_EN_SEL_data_q (reg_rosc_en_sel),
+        .valid (spi_decoder_wr_en | spi_decoder_rd_en),
+        .read (~spi_decoder_wr_en),
+        .addr (spi_decoder_reg_addr[0]), // take lower 1 bit, we only have 2 registers
+        .wdata (spi_wdata),
+        .wmask (1'b1), // per byte (so we only need one)
+        .rdata (spi_rdata)
+    );
 
     // OSCILLATORS
 
