@@ -34,6 +34,12 @@ module tt_um_mlyoung_wedgetail (
     // List all unused inputs to prevent warnings
     wire _unused = &{ena, rst_n, ui_in[7:4], 1'b0};
 
+    // LOGO
+
+    (* keep *)
+    wedgetail_logo logo();
+
+
     // OSCILLATORS
 
     logic ro_32_1;
