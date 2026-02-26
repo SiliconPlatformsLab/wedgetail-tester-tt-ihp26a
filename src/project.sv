@@ -34,6 +34,14 @@ module tt_um_mlyoung_wedgetail (
     // List all unused inputs to prevent warnings
     wire _unused = &{ena, rst_n, 1'b0};
 
+    // OUTPUTS
+    logic o_rosc_mux_out;
+    logic o_rosc_32_no_mux;
+    logic o_dpll_clk;
+    logic o_dpll_clk_fmult;
+    logic o_miso;
+    logic o_rosc_spi_out;
+
     // SPI
 
     logic spi_decoder_wr_en;
@@ -51,7 +59,7 @@ module tt_um_mlyoung_wedgetail (
         .i_spi_clk (clk),
         .i_spi_ssn (ui_in[6]),
         .i_spi_mosi (ui_in[5]),
-        .o_spi_miso (uo_out[5]),
+        .o_spi_miso (o_miso),
         .o_reg_wr_en (spi_decoder_wr_en),
         .o_reg_rd_en (spi_decoder_rd_en),
         .o_reg_addr (spi_decoder_reg_addr), // this is a full 8-bit word for ease of transmission
@@ -102,7 +110,7 @@ module tt_um_mlyoung_wedgetail (
     );
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(32)) mod_ro_32_raw (
-        .osc (uo_out[2])
+        .osc (o_rosc_32_no_mux)
     );
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(31)) mod_ro_31 (
@@ -119,7 +127,7 @@ module tt_um_mlyoung_wedgetail (
 
     ring_osc_prog_ihp130 #(.NUM_STAGES(8)) mod_ro_prog (
         .coding (reg_rosc_en_sel),
-        .osc (uo_out[6])
+        .osc (o_rosc_spi_out)
     );
 
     assign ro_or = ro_32_1 | ro_32_2;
@@ -127,27 +135,24 @@ module tt_um_mlyoung_wedgetail (
 
     // MUX
 
-    logic mux_out;
     RingOscType mux_in;
 
     assign mux_in = RingOscType'(ui_in[3:0]);
 
     always_comb begin
         case (mux_in)
-            ROSC_32_1 : mux_out = ro_32_1;
-            ROSC_32_2 : mux_out = ro_32_2;
-            ROSC_64 : mux_out = ro_64;
-            ROSC_16 : mux_out = ro_16;
-            ROSC_32_OR : mux_out = ro_or;
-            ROSC_31 : mux_out = ro_31;
-            ROSC_128 : mux_out = ro_128;
-            ROSC_32_AND : mux_out = ro_and;
-            ROSC_32_DRIVE_4 : mux_out = ro_32_drive4;
-            default : mux_out = 0;
+            ROSC_32_1 : o_rosc_mux_out = ro_32_1;
+            ROSC_32_2 : o_rosc_mux_out = ro_32_2;
+            ROSC_64 : o_rosc_mux_out = ro_64;
+            ROSC_16 : o_rosc_mux_out = ro_16;
+            ROSC_32_OR : o_rosc_mux_out = ro_or;
+            ROSC_31 : o_rosc_mux_out = ro_31;
+            ROSC_128 : o_rosc_mux_out = ro_128;
+            ROSC_32_AND : o_rosc_mux_out = ro_and;
+            ROSC_32_DRIVE_4 : o_rosc_mux_out = ro_32_drive4;
+            default : o_rosc_mux_out = 0;
         endcase
     end
-
-    assign uo_out[0] = mux_out;
 
     // DPLL
 
@@ -155,12 +160,19 @@ module tt_um_mlyoung_wedgetail (
         .clk (clk),
         .reset (~rst_n),
         .clk_fin (uio_in[4]),
-        .clk_fout (uo_out[3]),
-        .clk8x_fout (uo_out[4])
+        .clk_fout (o_dpll_clk),
+        .clk8x_fout (o_dpll_clk_fmult)
     );
 
-    // unused
+    // ASSIGN OUTPUTS
+
+    assign uo_out[0] = o_rosc_mux_out;
     assign uo_out[1] = 0;
+    assign uo_out[2] = o_rosc_32_no_mux;
+    assign uo_out[3] = o_dpll_clk;
+    assign uo_out[4] = o_dpll_clk_fmult;
+    assign uo_out[5] = o_miso;
+    assign uo_out[6] = o_rosc_spi_out;
     assign uo_out[7] = 0;
 
 endmodule

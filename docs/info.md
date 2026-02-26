@@ -22,10 +22,13 @@ The intent is to:
 
 ## How to test
 
-The first 3 pins, `ROSC SEL[2:0]`, are a 3-bit mux that can be used to select a particular ring oscillator
+### Ring Oscillator Mux
+The first 4 pins, `ROSC SEL[3:0]`, are a 4-bit mux that can be used to select a particular ring oscillator
 test.
 
 Currently, the selectable options are:
+
+**FIXME OUTDATED**
 
 
 | **Binary value**    | **Name**      | **Description**    |
@@ -44,6 +47,23 @@ plus 1 feedback inverter, making a 33-stage design. This was confirmed with full
 simulation to oscillate. On the other hand, the 31-stage oscillator has +1 = 32 inverters total, so may not
 oscillate.
 
+### DPLL
+A digital-phased lock loop is included, written by [jsloan256](https://github.com/jsloan256/dpll). Clock the
+main module at 2 MHz, then pass a 300 KHz signal into the "DPLL CLK 300 KHz" input port. The output port "DPLL
+CLK" will have the signal passing through the DPLL, and the port "DPLL CLK FMULT" will have the signal passing
+through an 8x frequency multiplier.
+
+### SPI Programmable Ring Oscillator
+A ring oscillator is included that can be programmed on the fly by SPI. The system clock is the same as the
+SPI clock, MOSI and CS are included as inputs, and "MISO" and "ROSC SPI OUT" are the output pins. The register
+file documentation is:
+
+**TODO**
+
+### Warnings
+- Do not test the DPLL and SPI at the same time, as they run off the same clock
+
+### Radiation testing
 To see the full effectiveness of the design, you will need a high radiation environment, for example a
 Cobalt-60 source, a laser, or a heavy ion accelerator; these sources will fundamentally change the behaviour
 of the chip. Unfortunately, these tools may be slightly challenging to acquire. Consider building your own
@@ -51,4 +71,5 @@ heavy ion accelerator, if appropriate in your area.
 
 ## External hardware
 
-- Radiation source required for full demonstration
+- None required for base operation
+- Radiation source required for full evaluation
