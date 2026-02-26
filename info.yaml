@@ -21,7 +21,6 @@ project:
     - "ring_osc_ihp130.sv"
     - "dpll.v"
     - "spi_decoder.sv"
-    - "spi_decoder_pkg.sv"
     - "wedgetail_spi_rf.sv"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
