@@ -40,6 +40,10 @@ Currently, the selectable options are:
 | 4 | ROSC_32_OR | ROSC_32_1 and ROSC\_32_2 OR'd together |
 | 5 | ROSC_31    | 31-stage oscillator |
 | 6 | ROSC_128   | 128-stage oscillator|
+| 7 | ROSC_32_AND | ROSC_32_1 and ROSC\_32_2 AND'ed together |
+| 8 | ROSC_32_DRIVE\_4 | A 32 stage osc with 4x drive current inverter |
+| 9 | ROSC_256 | 256-stage osc |
+| 10 | ROSC_256_DRIVE\_4 | 256-stage osc with 4x drive current |
 
 **Note:** Before you get mad at me for saying it won't oscillate because it's even, in all of these designs,
 there is an extra +1 inverter from the feedback tap. So a 32-stage oscillator has 32 inverters in the loop,
@@ -55,8 +59,10 @@ through an 8x frequency multiplier.
 
 ### SPI Programmable Ring Oscillator
 A ring oscillator is included that can be programmed on the fly by SPI. The system clock is the same as the
-SPI clock, MOSI and CS are included as inputs, and "MISO" and "ROSC SPI OUT" are the output pins. The register
-file documentation is:
+SPI clock, MOSI and CS are included as inputs, and "MISO" and "ROSC SPI OUT" are the output pins. The coding
+for the oscillator is 1-hot coded, i.e. setting a bit will either enable that inverter, or pass it through.
+
+The register file documentation is:
 
 **TODO**
 
