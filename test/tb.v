@@ -23,6 +23,15 @@ module tb ();
   wire [7:0] uio_out;
   wire [7:0] uio_oe;
 
-  // FIXME test
+  tt_um_mlyoung_wedgetail top (
+      .ui_in (ui_in),
+      .uo_out (uo_out),
+      .uio_in (uio_in),
+      .uio_out (uio_out),
+      .uio_oe (uio_oe),
+      .ena (ena),
+      .clk (clk),
+      .rst_n (rst_n)
+  );
 
 endmodule

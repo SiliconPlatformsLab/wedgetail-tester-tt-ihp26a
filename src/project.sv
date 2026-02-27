@@ -97,6 +97,7 @@ module tt_um_mlyoung_wedgetail (
     logic ro_256;
     logic ro_256_drive4;
 
+`ifndef SIM
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(32)) mod_ro_32_1 (
         .osc (ro_32_1)
     );
@@ -141,12 +142,13 @@ module tt_um_mlyoung_wedgetail (
         .coding (reg_rosc_en_sel),
         .osc (o_rosc_spi_out)
     );
+`endif
 
     assign ro_or = ro_32_1 | ro_32_2;
     assign ro_and = ro_32_1 & ro_32_2;
 
     // MUX
-
+    
     RingOscType mux_in;
 
     assign mux_in = RingOscType'(ui_in[3:0]);

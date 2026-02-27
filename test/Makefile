@@ -2,22 +2,21 @@
 # See https://docs.cocotb.org/en/stable/quickstart.html for more info
 
 # defaults
-SIM ?= icarus
+SIM ?= verilator
 FST ?= -fst # Use more efficient FST format
 TOPLEVEL_LANG ?= verilog
 SRC_DIR = $(PWD)/../src
-PROJECT_SOURCES = project.v
+PROJECT_SOURCES = dpll.v project.sv spi_decoder.sv wedgetail_spi_rf.sv
+
+COMPILE_ARGS 	+= -DSIM
 
 ifneq ($(GATES),yes)
-
 # RTL simulation:
 SIM_BUILD				= sim_build/rtl
 VERILOG_SOURCES += $(addprefix $(SRC_DIR)/,$(PROJECT_SOURCES))
-
 else
-
 # Gate level simulation:
-SIM_BUILD				= sim_build/gl
+SIM_BUILD		= sim_build/gl
 COMPILE_ARGS    += -DGL_TEST
 COMPILE_ARGS    += -DFUNCTIONAL
 COMPILE_ARGS    += -DSIM
@@ -26,7 +25,6 @@ VERILOG_SOURCES += $(PDK_ROOT)/ihp-sg13g2/libs.ref/sg13g2_stdcell/verilog/sg13g2
 
 # this gets copied in by the GDS action workflow
 VERILOG_SOURCES += $(PWD)/gate_level_netlist.v
-
 endif
 
 # Allow sharing configuration between design and testbench via `include`:
@@ -38,6 +36,10 @@ TOPLEVEL = tb
 
 # List test modules to run, separated by commas and without the .py suffix:
 COCOTB_TEST_MODULES = test
+
+# Verilator
+EXTRA_ARGS += --trace --trace-fst --trace-structs --timing
+
 
 # include cocotb's make rules to take care of the simulator setup
 include $(shell cocotb-config --makefiles)/Makefile.sim
