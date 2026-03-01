@@ -76,7 +76,7 @@
     "wedgetail_logo": {
       "instances": {
         "logo": {
-          "location": [15, 12],
+          "location": [5, 5],
           "orientation": "N"
         }
       },
