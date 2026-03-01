@@ -5,6 +5,10 @@ vars:
     sh: pwd
   DATE:
     sh: date "+%Y-%m-%d--%H_%M"
+  # LibreLane git revision for use with Nix
+  LIBRELANE_REVISION: 3.0.0.dev44
+  # LibreLane remote origin
+  LIBRELANE_REMOTE: librelane/librelane
 
 tasks:
   regmap:
@@ -18,6 +22,19 @@ tasks:
       - rm src/wedgetail_spi_tb.cpp src/wedgetail_spi_tb.sv src/wedgetail_spi_tb_wires_include.vh
       - rm src/wedgetail_spi_wrapper_tb.sv src/wedgetail_spi_port_map_include.vh src/wedgetail_spi_ports_include.vh
       - rm src/wedgetail_spi_wires_include.vh
+
+  tapeout_docker:
+    desc: Most similar to GitHub CI
+    cmds:
+      - uv run python ./tt/tt_tool.py --create-user-config
+      - uv run librelane --dockerized --pdk ihp-sg13g2 --run-tag wokwi --force-run-dir runs/wokwi src/config_merged.json
+
+  # fuck sake, this isn't working
+  # tapeout_nix:
+  #   desc: Actually useful
+  #   cmds:
+  #     - uv run python ./tt/tt_tool.py --create-user-config
+  #     - nix run github:{{ .LIBRELANE_REMOTE }}/{{ .LIBRELANE_REVISION }} -- --pdk ihp-sg13g2 --run-tag wokwi --force-run-dir runs/wokwi src/config_merged.json
 
   regmap_host:
     desc: Hosts documentation for the regmap
