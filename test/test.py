@@ -25,6 +25,20 @@ from cocotb.triggers import ClockCycles
   # uo[6]: "ROSC SPI OUT" # configurable ring oscillator over SPI
   # uo[7]: ""
 
+def set_bit(signal, index, bit):
+    current = signal.value.integer
+
+    if bit:
+        current |= (1 << index)
+    else:
+        current &= ~(1 << index)
+
+    signal.value = current
+
+def get_bit(signal, index):
+    value = signal.value.integer
+    return (value >> index) & 1
+
 
 @cocotb.test()
 async def test_spi_echo(dut):
@@ -40,21 +54,50 @@ async def test_spi_echo(dut):
     dut.ui_in.value = 0
     dut.uio_in.value = 0
     dut.rst_n.value = 0
-    await ClockCycles(dut.clk, 10)
+    await ClockCycles(dut.clk, 1)
     dut.rst_n.value = 1
 
     dut._log.info("Test SPI echo")
 
-    # shift in the address (0x00)
+    # shift in that its a write command
+    dut._log.info("set write command")
     await ClockCycles(dut.clk, 1)
 
-    # shift in 10101010 to the sys ctrl register
+    # shift in the address (0x00)
+    dut._log.info("set addr")
+    await ClockCycles(dut.clk, 1)
+
+    # shift in 10101010 to the sys ctrl register via MISO
     bits = [1, 0, 1, 0, 1, 0, 1, 0]
     assert len(bits) == 8
     for bit in bits:
-        dut.ui_in[5] = bit
-        await ClockCyles(dut.clk, 1)
+        set_bit(dut.ui_in, 5, bit)
+        await ClockCycles(dut.clk, 1)
 
+    # de-assert SS (active low, pull it hi)
+    dut._log.info("de-assert CS")
+    set_bit(dut.ui_in, 6, 1)
+    await ClockCycles(dut.clk, 1)
+    set_bit(dut.ui_in, 6, 0)
+    await ClockCycles(dut.clk, 1)
+
+    # now, do a read
+
+    # shift in that its a read
+    set_bit(dut.ui_in, 5, 1)
+    await ClockCycles(dut.clk, 1)
+
+    # shift in addr (0x00)
+    set_bit(dut.ui_in, 5, 0)
+    await ClockCycles(dut.clk, 1)
+
+    # read out the value
+    val_out = []
+    for i in range(8):
+        await ClockCycles(dut.clk, 1)
+        val_out.append(get_bit(dut.uo_out, 5)) # MISO
+
+    assert bits == val_out
 
     # Set the input values you want to test
     # dut.ui_in.value = 20

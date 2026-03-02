@@ -90,6 +90,7 @@ module spi_decoder (
   // SPI Decoder State Machine
   always_ff @(posedge i_spi_clk or posedge i_spi_ssn) begin : spi_fsm
     if (i_spi_ssn == 1'b1) begin
+      $display("RESET, i_spi_ssn == 1");
       spi_state      <= ST_IDLE;
       start          <= 1'b0;
       write          <= 1'b0;
@@ -102,6 +103,7 @@ module spi_decoder (
             // Only leave IDLE if this is the first SCLK after Chip Select asserts
             start     <= 1'b1;
             spi_state <= ST_CMD;
+            $display("ST_IDLE: Leaving idle");
           end
         end  // ST_IDLE
 
@@ -113,8 +115,10 @@ module spi_decoder (
             // If opcode == SPI_OP_READ, then write = 0 already, so there's nothing to change
             // No need to check for a "Global Read" at this point as that was already handled above
             if (opcode == SPI_OP_WRITE) begin
+              $display("ST_CMD: Write op");
               write <= 1'b1;
             end else begin  // opcode == SPI_OP_READ
+              $display("ST_CMD: Read op");
               rd_pulse <= 1'b1;  // Pulse when there's a read to enable the status registers' HW write
             end
         end  // ST_CMD
@@ -125,14 +129,12 @@ module spi_decoder (
             // Capture the starting Register Address and go to DATA
             spi_addr  <= {shift_in_reg[6:0], i_spi_mosi};
             spi_state <= ST_DATA;
+            $strobe("ST_REG_ADDR: Reg addr 0x%X", spi_addr);
           end
         end  // ST_REG_ADDR
 
         ST_DATA : begin
-          if (shift_cnt == DATA_W_MAX) begin
-            // Increment the logical address after every data byte
-            spi_addr <= spi_addr + 1'b1;
-          end
+          $strobe("ST_DATA: Idx %d", shift_cnt);
         end  // ST_DATA
       endcase
     end
@@ -157,7 +159,7 @@ module spi_decoder (
       shift_out_reg <= 8'h00;
     end else begin
       if (reg_rd_en == 1'b1) begin
-	shift_out_reg <= i_reg_rdata;
+	      shift_out_reg <= i_reg_rdata;
       end else begin
         // TODO: is it worth gating this with spi_state == ST_DATA? or != ST_IDLE?
 	      shift_out_reg <= {shift_out_reg[6:0], 1'b0};
