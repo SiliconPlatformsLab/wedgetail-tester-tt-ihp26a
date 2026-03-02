@@ -99,30 +99,37 @@ module tt_um_mlyoung_wedgetail (
 
 `ifndef SIM
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(32)) mod_ro_32_1 (
+        .en(ena),
         .osc (ro_32_1)
     );
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(32)) mod_ro_32_2 (
+        .en(ena),
         .osc (ro_32_2)
     );
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(64)) mod_ro_64 (
+        .en(ena),
         .osc (ro_64)
     );
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(16)) mod_ro_16 (
+        .en(ena),
         .osc (ro_16)
     );
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(32)) mod_ro_32_raw (
+        .en(ena),
         .osc (o_rosc_32_no_mux)
     );
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(31)) mod_ro_31 (
+        .en(ena),
         .osc (ro_31)
     );
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(128)) mod_ro_128 (
+        .en(ena),
         .osc (ro_128)
     );
 
@@ -131,6 +138,7 @@ module tt_um_mlyoung_wedgetail (
     );
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(256)) mod_ro_256 (
+        .en(ena),
         .osc (ro_256)
     );
 
