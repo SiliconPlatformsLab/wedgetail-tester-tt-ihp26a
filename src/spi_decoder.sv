@@ -16,24 +16,25 @@
 
 // SPI Decoder States. Don't specify values - let the compiler decide the optimal encoding.
 typedef enum logic [1:0] {
+  ST_IDLE,
   ST_CMD     ,  // Receiving and decoding the Opcode and Chip Address
   ST_REG_ADDR,  // Receiving and storing the Register Address, if it's a Read or Write
   ST_DATA       // Transferring data bytes between the SPI Master and the regbank
 } spi_state_e;
 
 // SPI Opcodes
-typedef enum logic {
-  SPI_OP_WRITE      = 1'd0,  // Write byte(s) to a register
-  SPI_OP_READ       = 1'd1  // Read bytes(s) from a register
+typedef enum logic [7:0] {
+  SPI_OP_WRITE      = 8'd0,  // Write byte(s) to a register
+  SPI_OP_READ       = 8'd1  // Read bytes(s) from a register
 } spi_op_e;
 
 parameter int unsigned OPCODE_W       = 1; // {Read, Write}
 
 // Width of command byte (in our case, this is just the opcode)
-parameter int unsigned CMD_W          = 1;
+parameter int unsigned CMD_W          = 8;
 
 // Width of address bus
-parameter int unsigned SPI_REG_ADDR_W = 2;
+parameter int unsigned SPI_REG_ADDR_W = 8;
 
 // Width of the register bank address, which is the same as the SPI_REG_ADDR_W in our case
 parameter int unsigned REGBANK_ADDR_W = SPI_REG_ADDR_W;
@@ -65,6 +66,8 @@ module spi_decoder (
 
   // SPI Decoder FSM signals
   spi_state_e spi_state;
+  spi_state_e last_state;
+  logic did_just_change_state;
   logic start;
   logic write;
   logic rd_pulse;
@@ -79,12 +82,7 @@ module spi_decoder (
   logic reg_rd_en;
   logic miso_en;
 
-  // The 1 bit opcode sits at the low address
-  logic [OPCODE_W-1:0]    opcode;      // 1 bit
-
-  // Assign the command fields for the state machine.
-  // In our design we only have a 1-bit command (read/write)
-  assign opcode = i_spi_mosi;
+  logic  [7:0]  opcode;
 
   // SPI Decoder State Machine
   always_ff @(posedge i_spi_clk or posedge i_spi_ssn) begin : spi_fsm
@@ -96,29 +94,39 @@ module spi_decoder (
       rd_pulse       <= 1'b0;
       spi_addr       <= '0;
     end else begin
+      last_state <= spi_state;
       unique case (spi_state)
-        ST_CMD : begin
-            // This is a Write or Read Command
-            spi_state <= ST_REG_ADDR;  // Register Address will be received next
-            $display("ST_CMD: Command state");
+        ST_IDLE : begin
+          if (start == 1'b0) begin
+            // Only leave IDLE if this is the first SCLK after Chip Select asserts
+            start     <= 1'b1;
+            spi_state <= ST_CMD;
+            $display("ST_IDLE: Leave idle");
+          end
+        end  // ST_IDLE
 
-            // Check if the Opcode is a Write or Write Temp
-            // If opcode == SPI_OP_READ, then write = 0 already, so there's nothing to change
-            // No need to check for a "Global Read" at this point as that was already handled above
-            if (opcode == SPI_OP_WRITE) begin
-              $display("ST_CMD: Write op");
-              write <= 1'b1;
-            end else if (opcode == SPI_OP_READ) begin  // opcode == SPI_OP_READ
-              $display("ST_CMD: Read op");
-              rd_pulse <= 1'b1;  // Pulse when there's a read to enable the status registers' HW write
-            end
+        ST_CMD : begin
+            if (shift_cnt == CMD_W_MAX) begin
+              spi_state <= ST_REG_ADDR;  // Register Address will be received next
+
+              if (opcode == SPI_OP_WRITE) begin
+                $display("ST_CMD: Write op");
+                write <= 1'b1;
+              end else if (opcode == SPI_OP_READ) begin  // opcode == SPI_OP_READ
+                $display("ST_CMD: Read op");
+                rd_pulse <= 1'b1;  // Pulse when there's a read to enable the status registers' HW write
+              end // opcode check
+            end // CMD_W_MAX
+
+            $display("ST_CMD: Reading command");
         end  // ST_CMD
 
         ST_REG_ADDR : begin
           rd_pulse <= 1'b0;  // Clear the read pulse
-          if (shift_cnt == ADDR_W_MAX) begin  // Bit 15
+          $strobe("ST_REG_ADDR: Waiting");
+          if (shift_cnt == ADDR_W_MAX) begin
             // Capture the starting Register Address and go to DATA
-            spi_addr  <= {shift_in_reg[0], i_spi_mosi};
+            spi_addr  <= {shift_in_reg[6:0], i_spi_mosi};
             spi_state <= ST_DATA;
             $strobe("ST_REG_ADDR: Reg addr 0x%X", spi_addr);
           end
@@ -138,7 +146,6 @@ module spi_decoder (
       shift_cnt    <= 3'h0;
       shift_in_reg <= 8'h00;
     end else begin
-      // TODO: is it worth gating this with spi_state == ST_DATA? or != ST_IDLE?
       // Keep count of the number of bits shifted in
       shift_cnt    <= shift_cnt + 1'b1;
       shift_in_reg <= {shift_in_reg[6:0], i_spi_mosi};
@@ -153,7 +160,6 @@ module spi_decoder (
       if (reg_rd_en == 1'b1) begin
 	      shift_out_reg <= i_reg_rdata;
       end else begin
-        // TODO: is it worth gating this with spi_state == ST_DATA? or != ST_IDLE?
 	      shift_out_reg <= {shift_out_reg[6:0], 1'b0};
       end
     end

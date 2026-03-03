@@ -52,8 +52,11 @@ module tb ();
     localparam MOSI = 5;
     localparam MISO = 5;
 
+    logic [7:0] CMD_WRITE = 8'd0;
+
+    // FIXME copy and paste this back again from the library
     task spi_write;
-        input [1:0] addr;
+        input [7:0] addr;
         input [7:0] data;
 
         begin
@@ -61,10 +64,13 @@ module tb ();
 
             ui_in[SSN] = 0;
 
-            for (i = 0; i < 11; i = i + 1) begin
-                if (i == 0) ui_in[MOSI] = 0; // WRITE
-                else if (i == 1 || i == 2) ui_in[MOSI] = addr[2 - i];
-                else ui_in[MOSI] = data[10 - i];
+            for (i = 0; i < 24; i = i + 1) begin
+                if (i < 8)
+                  ui_in[MOSI] = CMD_WRITE[7-i];
+                else if (i < 16)
+                  ui_in[MOSI] = addr[15-i];
+                else
+                  ui_in[MOSI] = data[23-i];
 
                 #10;
                 clk = 1;
@@ -111,16 +117,16 @@ module tb ();
         // enable, but keep SSN held high
         ena = 1;
         ui_in[SSN] = 1;
-        #1;
+        #10;
 
         // trigger system reset
         rst_n = 0;
-        #1;
+        #10;
         rst_n = 1;
-        #1;
+        #10;
 
         $display("WRITE TRANSACTION 0x01");
-        spi_write(1, 8'h3F);
+        spi_write(8'd0, 8'h3F);
     end
 
 endmodule

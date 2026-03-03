@@ -44,7 +44,7 @@ module tt_um_mlyoung_wedgetail (
 
     logic spi_decoder_wr_en;
     logic spi_decoder_rd_en;
-    logic [1:0] spi_decoder_reg_addr;
+    logic [7:0] spi_decoder_reg_addr;
     logic [7:0] spi_wdata;
     logic [7:0] spi_rdata;
 
@@ -75,7 +75,7 @@ module tt_um_mlyoung_wedgetail (
         .ROSC_EN_SEL_DATA_q (reg_rosc_en_sel),
         .valid (spi_decoder_wr_en | spi_decoder_rd_en),
         .read (~spi_decoder_wr_en),
-        .addr (spi_decoder_reg_addr), // take lower 1 bit, we only have 2 registers
+        .addr (spi_decoder_reg_addr[1:0]), // we actually only have a 4-bit bus
         .wdata (spi_wdata),
         .wmask (1'b1), // per byte (so we only need one)
         .rdata (spi_rdata)
