@@ -125,8 +125,29 @@ module tb ();
         rst_n = 1;
         #10;
 
-        $display("WRITE TRANSACTION 0x01");
+        $display("WRITE TRANSACTION 0x00");
         spi_write(8'd0, 8'h3F);
+
+        #10;
+        clk = 1;
+        #10;
+        clk = 0;
+
+        $display("WRITE TRANSACTION 0x01");
+        spi_write(8'd1, 8'h3F);
+
+        #10;
+        clk = 1;
+        #10;
+        clk = 0;
+
+        $display("WRITE TRANSACTION 0x02");
+        spi_write(8'd2, 8'h3F);
+
+        #10;
+        clk = 1;
+        #10;
+        clk = 0;
     end
 
 endmodule

@@ -82,7 +82,10 @@ module spi_decoder (
   logic reg_rd_en;
   logic miso_en;
 
-  logic  [7:0]  opcode;
+  logic [7:0] opcode;
+
+  // opcode will just be the full contents of the shift reg
+  assign opcode = {shift_in_reg[6:0], i_spi_mosi};
 
   // SPI Decoder State Machine
   always_ff @(posedge i_spi_clk or posedge i_spi_ssn) begin : spi_fsm
