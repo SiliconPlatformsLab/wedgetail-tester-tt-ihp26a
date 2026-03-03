@@ -32,9 +32,6 @@ module tt_um_mlyoung_wedgetail (
     assign uio_out = 0; // we don't use inouts
     assign uio_oe  = 0; // we don't enable inouts
 
-    // List all unused inputs to prevent warnings
-    wire _unused = &{ena, rst_n, 1'b0};
-
     // OUTPUTS
     logic o_rosc_mux_out;
     logic o_rosc_32_no_mux;
