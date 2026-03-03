@@ -98,8 +98,11 @@ module tt_um_mlyoung_wedgetail (
     logic ro_256_drive4;
 
 `ifndef SIM
+    RingOscType mux_in;
+    assign mux_in = RingOscType'(ui_in[3:0]);
+
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(32)) mod_ro_32_1 (
-        .en(ena),
+        .en(ena & mux_in == ROSC_32_1),
         .osc (ro_32_1)
     );
 
@@ -156,10 +159,6 @@ module tt_um_mlyoung_wedgetail (
     assign ro_and = ro_32_1 & ro_32_2;
 
     // MUX
-    
-    RingOscType mux_in;
-
-    assign mux_in = RingOscType'(ui_in[3:0]);
 
     always_comb begin
         case (mux_in)

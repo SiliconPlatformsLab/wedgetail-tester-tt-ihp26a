@@ -9,6 +9,9 @@ module ring_osc_prog_ihp130 # (
     // One-hot programming for the stages. 1 = this stage is enabled, 0 = pass-through.
     input logic[NUM_STAGES-1:0] coding,
 
+    // Enable
+    input logic en,
+
     // Output oscillator signal
     output logic osc
 );
@@ -23,16 +26,17 @@ module ring_osc_prog_ihp130 # (
             (* keep *) (* dont_touch *) inv_en_ihp130 inv(
                 .o_sig(fabric[i + 1]),
                 .i_sig(fabric[i]),
-                .i_en(coding[i])
+                .i_en(coding[i] & en)
             );
         end
     endgenerate
 
     // feedback tap
     // this does fabric[0] <- fabric[NUM_STAGES]
-    (* keep *) (* dont_touch *) sg13g2_inv_1 feedback(
-        .Y(fabric[0]),
-        .A(fabric[NUM_STAGES])
+    inv_en_ihp130 feedback (
+            .i_sig (fabric[NUM_STAGES]),
+            .i_en (en),
+            .o_sig (fabric[0])
     );
 
     // tap the output at the start of the inverter chain, this should be sufficient
