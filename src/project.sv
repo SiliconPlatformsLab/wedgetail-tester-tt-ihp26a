@@ -107,17 +107,17 @@ module tt_um_mlyoung_wedgetail (
     );
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(32)) mod_ro_32_2 (
-        .en(ena),
+        .en(ena & mux_in == ROSC_32_2),
         .osc (ro_32_2)
     );
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(64)) mod_ro_64 (
-        .en(ena),
+        .en(ena & mux_in == ROSC_64),
         .osc (ro_64)
     );
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(16)) mod_ro_16 (
-        .en(ena),
+        .en(ena & mux_in == ROSC_16),
         .osc (ro_16)
     );
 
@@ -127,12 +127,12 @@ module tt_um_mlyoung_wedgetail (
     );
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(31)) mod_ro_31 (
-        .en(ena),
+        .en(ena & mux_in == ROSC_31),
         .osc (ro_31)
     );
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(128)) mod_ro_128 (
-        .en(ena),
+        .en(ena & mux_in == ROSC_128),
         .osc (ro_128)
     );
 
@@ -150,6 +150,7 @@ module tt_um_mlyoung_wedgetail (
     );
 
     (* keep *) ring_osc_prog_ihp130 #(.NUM_STAGES(8)) mod_ro_prog (
+        .en(ena),
         .coding (reg_rosc_en_sel),
         .osc (o_rosc_spi_out)
     );
