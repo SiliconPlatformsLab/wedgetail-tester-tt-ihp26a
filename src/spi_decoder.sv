@@ -31,10 +31,10 @@ typedef enum logic {
 parameter int unsigned OPCODE_W       = 1; // {Read, Write}
 
 // Width of command byte (in our case, this is just the opcode)
-parameter int unsigned CMD_W          = 8;
+parameter int unsigned CMD_W          = 1;
 
 // Width of address bus
-parameter int unsigned SPI_REG_ADDR_W = 8;  // There are 256 logical addresses from the SPI interface perspective
+parameter int unsigned SPI_REG_ADDR_W = 1;  // There are 256 logical addresses from the SPI interface perspective
 
 // Width of the register bank address, which is the same as the SPI_REG_ADDR_W in our case
 parameter int unsigned REGBANK_ADDR_W = SPI_REG_ADDR_W;
@@ -90,7 +90,7 @@ module spi_decoder (
   // SPI Decoder State Machine
   always_ff @(posedge i_spi_clk or posedge i_spi_ssn) begin : spi_fsm
     if (i_spi_ssn == 1'b1) begin
-      $display("RESET, i_spi_ssn == 1");
+      $display("SPI: Reset");
       spi_state      <= ST_IDLE;
       start          <= 1'b0;
       write          <= 1'b0;
@@ -110,6 +110,7 @@ module spi_decoder (
         ST_CMD : begin
             // This is a Write or Read Command
             spi_state <= ST_REG_ADDR;  // Register Address will be received next
+            $display("ST_CMD: Command state");
 
             // Check if the Opcode is a Write or Write Temp
             // If opcode == SPI_OP_READ, then write = 0 already, so there's nothing to change
@@ -127,7 +128,8 @@ module spi_decoder (
           rd_pulse <= 1'b0;  // Clear the read pulse
           if (shift_cnt == ADDR_W_MAX) begin  // Bit 15
             // Capture the starting Register Address and go to DATA
-            spi_addr  <= {shift_in_reg[6:0], i_spi_mosi};
+            // spi_addr  <= {shift_in_reg[6:0], i_spi_mosi};
+            spi_addr <= i_spi_mosi;
             spi_state <= ST_DATA;
             $strobe("ST_REG_ADDR: Reg addr 0x%X", spi_addr);
           end

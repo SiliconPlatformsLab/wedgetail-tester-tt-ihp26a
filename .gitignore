@@ -13,3 +13,4 @@ test/results.xml
 test/gate_level_netlist.v
 *.log
 docs/html
+test/obj_dir

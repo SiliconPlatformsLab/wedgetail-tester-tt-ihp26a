@@ -48,3 +48,10 @@ tasks:
       - uv run ciel enable --pdk-family ihp-sg13g2 /c4b8b4e5e7a05f375cca3815d51b3a37721fbf5c
     status:
       - test -f ~/.ciel/ciel/ihp-sg13g2/versions/c4b8b4e5e7a05f375cca3815d51b3a37721fbf5c/ihp-sg13g2/libs.tech/magic/ihp-sg13g2.magicrc
+
+  sim:
+    desc: Run sim
+    dir: test
+    cmds:
+      - verilator --timing --binary --trace -DSIM -j 24 tb.sv ../src/dpll.v ../src/project.sv ../src/spi_decoder.sv ../src/wedgetail_spi_rf.sv
+      - ./obj_dir/Vtb
