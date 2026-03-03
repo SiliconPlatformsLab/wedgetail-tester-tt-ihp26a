@@ -36,9 +36,9 @@ BOUNDARY_LAYERS = [
     # (117, 4), # cmm5, waffle-drop
 ]
 PIXEL_LAYERS = [
-    # (8, 0), # metal1 drawing
-    # (10, 0), # metal2 drawing
-    # (30, 0), # metal3 drawing
+    (8, 0), # metal1 drawing
+    (10, 0), # metal2 drawing
+    (30, 0), # metal3 drawing
     (50, 0), # metal4 drawing
     # (126, 0), # top metal 1, drawing
 
@@ -48,7 +48,7 @@ PIXEL_LAYERS = [
     # # (70, 20), # met3, drawing
     # # (71, 20), # met4, drawing
 ]
-PIXEL_SIZE = 0.15 # um
+PIXEL_SIZE = 0.35 # um
 VERBOSITY = 2
 
 # Process arguments
