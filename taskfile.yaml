@@ -26,16 +26,15 @@ tasks:
   tapeout_docker:
     desc: Most similar to GitHub CI
     cmds:
-      - uv run python ./tt/tt_tool.py --create-user-config
+      - rm -rf runs ./src/config_merged.json
+      - uv run python ./tt/tt_tool.py --create-user-config --ihp
       - mkdir -p runs/wokwi
       - uv run librelane --dockerized --pdk ihp-sg13g2 --run-tag wokwi --force-run-dir runs/wokwi src/config_merged.json
 
-  # fuck sake, this isn't working
-  # tapeout_nix:
-  #   desc: Actually useful
-  #   cmds:
-  #     - uv run python ./tt/tt_tool.py --create-user-config
-  #     - nix run github:{{ .LIBRELANE_REMOTE }}/{{ .LIBRELANE_REVISION }} -- --pdk ihp-sg13g2 --run-tag wokwi --force-run-dir runs/wokwi src/config_merged.json
+  view_openroad_docker:
+    desc: Most similar to GitHub CI
+    cmds:
+      - uv run librelane --dockerized --pdk ihp-sg13g2 --run-tag wokwi --force-run-dir runs/wokwi --flow openinopenroad src/config_merged.json
 
   regmap_host:
     desc: Hosts documentation for the regmap
