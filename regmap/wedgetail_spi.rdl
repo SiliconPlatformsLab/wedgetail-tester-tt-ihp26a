@@ -20,24 +20,33 @@ addrmap wedgetail_spi {
     default regwidth = 8;
 
     reg {
-        name = "System Control";
-
+        name = "Reset";
         field {
             desc = "When any value is written to this register, a power on reset will be performed on the
             entire device";
             sw = w;
             hw = r;
-        } RESET = 0;
+        } RESET[7:0] = 0;
+    } SYS_CTRL;
 
+    reg {
+        name = "ECHO1";
         field {
             desc = "Read/write echo register, for SPI debugging";
-        } ECHO[7:1] = 0x03;
-    } SYS_CTRL;
+        } DATA[7:0] = 0;
+    } ECHO1;
+
+    reg {
+        name = "ECHO2";
+        field {
+            desc = "Read/write echo register, for SPI debugging";
+        } DATA[7:0] = 0;
+    } ECHO2;
 
     reg {
         name = "Ring Oscillator Enable Select";
         field {
             desc = "Select the bits enabled by the configurable ring oscillator.";
-        } data[7:0];
+        } DATA[7:0];
     } ROSC_EN_SEL;
 };

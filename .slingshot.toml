@@ -8,5 +8,6 @@ version = "1.0.0"
 # Note: The project root directory is usually the Git root directory.
 include_dirs = [
   "src",
+  "test",
   # ... any other RTL source directories here ...
 ]

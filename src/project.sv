@@ -6,17 +6,16 @@
 `default_nettype none
 
 typedef enum logic [3:0] {
-    ROSC_32_1 = 4'd0,
-    ROSC_32_2 = 4'd1,
-    ROSC_64 = 4'd2,
-    ROSC_16 = 4'd3,
-    ROSC_32_OR = 4'd4,
-    ROSC_31 = 4'd5,
-    ROSC_128 = 4'd6,
-    ROSC_32_AND = 4'd7,
-    ROSC_32_DRIVE_4 = 4'd8,
-    ROSC_256 = 4'd9,
-    ROSC_256_DRIVE_4 = 4'd10
+    ROSC_NONE = 4'd0,
+    ROSC_32_1 = 4'd1,
+    ROSC_32_2 = 4'd2,
+    ROSC_64 = 4'd3,
+    ROSC_16 = 4'd4,
+    ROSC_32_OR = 4'd5,
+    ROSC_31 = 4'd6,
+    ROSC_128 = 4'd7,
+    ROSC_32_AND = 4'd8,
+    ROSC_32_DRIVE_4 = 4'd9
 } RingOscType;
 
 module tt_um_mlyoung_wedgetail (
@@ -32,9 +31,6 @@ module tt_um_mlyoung_wedgetail (
     // All output pins must be assigned. If not used, assign to 0.
     assign uio_out = 0; // we don't use inouts
     assign uio_oe  = 0; // we don't enable inouts
-
-    // List all unused inputs to prevent warnings
-    wire _unused = &{ena, rst_n, 1'b0};
 
     // OUTPUTS
     logic o_rosc_mux_out;
@@ -52,8 +48,9 @@ module tt_um_mlyoung_wedgetail (
     logic [7:0] spi_wdata;
     logic [7:0] spi_rdata;
 
-    logic reg_reset;
-    logic [6:0] reg_echo;
+    logic [7:0] reg_reset;
+    logic [7:0] reg_echo1;
+    logic [7:0] reg_echo2;
     logic [7:0] reg_rosc_en_sel;
 
     spi_decoder spi_decoder_mod (
@@ -73,11 +70,12 @@ module tt_um_mlyoung_wedgetail (
         .clk (clk),
         .resetn (rst_n),
         .SYS_CTRL_RESET_q (reg_reset),
-        .SYS_CTRL_ECHO_q (reg_echo),
-        .ROSC_EN_SEL_data_q (reg_rosc_en_sel),
+        .ECHO1_DATA_q (reg_echo1),
+        .ECHO2_DATA_q (reg_echo2),
+        .ROSC_EN_SEL_DATA_q (reg_rosc_en_sel),
         .valid (spi_decoder_wr_en | spi_decoder_rd_en),
         .read (~spi_decoder_wr_en),
-        .addr (spi_decoder_reg_addr[0]), // take lower 1 bit, we only have 2 registers
+        .addr (spi_decoder_reg_addr[1:0]), // we actually only have a 4-bit bus
         .wdata (spi_wdata),
         .wmask (1'b1), // per byte (so we only need one)
         .rdata (spi_rdata)
@@ -100,65 +98,68 @@ module tt_um_mlyoung_wedgetail (
     logic ro_31;
     logic ro_128;
     logic ro_32_drive4;
-    logic ro_256;
-    logic ro_256_drive4;
 
+    RingOscType mux_in;
+    assign mux_in = RingOscType'(ui_in[3:0]);
+
+`ifndef SIM
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(32)) mod_ro_32_1 (
+        .en(ena & mux_in == ROSC_32_1),
         .osc (ro_32_1)
     );
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(32)) mod_ro_32_2 (
+        .en(ena & mux_in == ROSC_32_2),
         .osc (ro_32_2)
     );
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(64)) mod_ro_64 (
+        .en(ena & mux_in == ROSC_64),
         .osc (ro_64)
     );
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(16)) mod_ro_16 (
+        .en(ena & mux_in == ROSC_16),
         .osc (ro_16)
     );
 
+    // NOTE this will run continuously I guess, but we can probably just subtract it from background power
+    // draw
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(32)) mod_ro_32_raw (
+        .en(ena),
         .osc (o_rosc_32_no_mux)
     );
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(31)) mod_ro_31 (
+        .en(ena & mux_in == ROSC_31),
         .osc (ro_31)
     );
 
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(128)) mod_ro_128 (
+        .en(ena & mux_in == ROSC_128),
         .osc (ro_128)
     );
 
+    // FIXME needs an enable
     (* keep *) ring_osc_drive4_ihp130 #(.NUM_STAGES(32)) mod_ro_32_drive4 (
         .osc (ro_32_drive4)
     );
 
-    (* keep *) ring_osc_ihp130 #(.NUM_STAGES(256)) mod_ro_256 (
-        .osc (ro_256)
-    );
-
-    (* keep *) ring_osc_drive4_ihp130 #(.NUM_STAGES(256)) mod_ro_256_drive4 (
-        .osc (ro_256_drive4)
-    );
-
     (* keep *) ring_osc_prog_ihp130 #(.NUM_STAGES(8)) mod_ro_prog (
+        .en(ena),
         .coding (reg_rosc_en_sel),
         .osc (o_rosc_spi_out)
     );
+`endif
 
     assign ro_or = ro_32_1 | ro_32_2;
     assign ro_and = ro_32_1 & ro_32_2;
 
     // MUX
 
-    RingOscType mux_in;
-
-    assign mux_in = RingOscType'(ui_in[3:0]);
-
     always_comb begin
         case (mux_in)
+            ROSC_NONE : o_rosc_mux_out = 0;
             ROSC_32_1 : o_rosc_mux_out = ro_32_1;
             ROSC_32_2 : o_rosc_mux_out = ro_32_2;
             ROSC_64 : o_rosc_mux_out = ro_64;
@@ -168,8 +169,6 @@ module tt_um_mlyoung_wedgetail (
             ROSC_128 : o_rosc_mux_out = ro_128;
             ROSC_32_AND : o_rosc_mux_out = ro_and;
             ROSC_32_DRIVE_4 : o_rosc_mux_out = ro_32_drive4;
-            ROSC_256 : o_rosc_mux_out = ro_256;
-            ROSC_256_DRIVE_4 : o_rosc_mux_out = ro_256_drive4;
             default : o_rosc_mux_out = 0;
         endcase
     end

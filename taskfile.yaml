@@ -26,15 +26,15 @@ tasks:
   tapeout_docker:
     desc: Most similar to GitHub CI
     cmds:
-      - uv run python ./tt/tt_tool.py --create-user-config
+      - rm -rf runs ./src/config_merged.json
+      - uv run python ./tt/tt_tool.py --create-user-config --ihp
+      - mkdir -p runs/wokwi
       - uv run librelane --dockerized --pdk ihp-sg13g2 --run-tag wokwi --force-run-dir runs/wokwi src/config_merged.json
 
-  # fuck sake, this isn't working
-  # tapeout_nix:
-  #   desc: Actually useful
-  #   cmds:
-  #     - uv run python ./tt/tt_tool.py --create-user-config
-  #     - nix run github:{{ .LIBRELANE_REMOTE }}/{{ .LIBRELANE_REVISION }} -- --pdk ihp-sg13g2 --run-tag wokwi --force-run-dir runs/wokwi src/config_merged.json
+  view_openroad_docker:
+    desc: Most similar to GitHub CI
+    cmds:
+      - uv run librelane --dockerized --pdk ihp-sg13g2 --run-tag wokwi --force-run-dir runs/wokwi --flow openinopenroad src/config_merged.json
 
   regmap_host:
     desc: Hosts documentation for the regmap
@@ -47,3 +47,10 @@ tasks:
       - uv run ciel enable --pdk-family ihp-sg13g2 /c4b8b4e5e7a05f375cca3815d51b3a37721fbf5c
     status:
       - test -f ~/.ciel/ciel/ihp-sg13g2/versions/c4b8b4e5e7a05f375cca3815d51b3a37721fbf5c/ihp-sg13g2/libs.tech/magic/ihp-sg13g2.magicrc
+
+  sim:
+    desc: Run sim
+    dir: test
+    cmds:
+      - verilator --timing --binary --trace -DSIM -j 24 tb.sv ../src/dpll.v ../src/project.sv ../src/spi_decoder.sv ../src/wedgetail_spi_rf.sv
+      - ./obj_dir/Vtb
