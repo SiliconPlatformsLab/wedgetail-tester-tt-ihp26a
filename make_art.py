@@ -48,7 +48,7 @@ PIXEL_LAYERS = [
     # # (70, 20), # met3, drawing
     # # (71, 20), # met4, drawing
 ]
-PIXEL_SIZE = 0.35 # um
+PIXEL_SIZE = 0.5 # um
 VERBOSITY = 2
 
 # Process arguments
