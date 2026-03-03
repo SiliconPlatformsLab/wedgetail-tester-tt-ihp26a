@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = "==3.13.*"
 dependencies = [
     "cocotb>=2.0.1",
+    "gdspy>=1.6.13",
     "gnuplotpy3>=0.0.3",
     "go-task-bin>=3.48.0",
     "klayout>=0.30.5",
