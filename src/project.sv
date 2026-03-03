@@ -6,17 +6,16 @@
 `default_nettype none
 
 typedef enum logic [3:0] {
-    ROSC_32_1 = 4'd0,
-    ROSC_32_2 = 4'd1,
-    ROSC_64 = 4'd2,
-    ROSC_16 = 4'd3,
-    ROSC_32_OR = 4'd4,
-    ROSC_31 = 4'd5,
-    ROSC_128 = 4'd6,
-    ROSC_32_AND = 4'd7,
-    ROSC_32_DRIVE_4 = 4'd8,
-    ROSC_256 = 4'd9,
-    ROSC_256_DRIVE_4 = 4'd10
+    ROSC_NONE = 4'd0,
+    ROSC_32_1 = 4'd1,
+    ROSC_32_2 = 4'd2,
+    ROSC_64 = 4'd3,
+    ROSC_16 = 4'd4,
+    ROSC_32_OR = 4'd5,
+    ROSC_31 = 4'd6,
+    ROSC_128 = 4'd7,
+    ROSC_32_AND = 4'd8,
+    ROSC_32_DRIVE_4 = 4'd9
 } RingOscType;
 
 module tt_um_mlyoung_wedgetail (
@@ -94,8 +93,6 @@ module tt_um_mlyoung_wedgetail (
     logic ro_31;
     logic ro_128;
     logic ro_32_drive4;
-    logic ro_256;
-    logic ro_256_drive4;
 
 `ifndef SIM
     RingOscType mux_in;
@@ -121,6 +118,8 @@ module tt_um_mlyoung_wedgetail (
         .osc (ro_16)
     );
 
+    // NOTE this will run continuously I guess, but we can probably just subtract it from background power
+    // draw
     (* keep *) ring_osc_ihp130 #(.NUM_STAGES(32)) mod_ro_32_raw (
         .en(ena),
         .osc (o_rosc_32_no_mux)
@@ -136,17 +135,9 @@ module tt_um_mlyoung_wedgetail (
         .osc (ro_128)
     );
 
+    // FIXME needs an enable
     (* keep *) ring_osc_drive4_ihp130 #(.NUM_STAGES(32)) mod_ro_32_drive4 (
         .osc (ro_32_drive4)
-    );
-
-    (* keep *) ring_osc_ihp130 #(.NUM_STAGES(256)) mod_ro_256 (
-        .en(ena),
-        .osc (ro_256)
-    );
-
-    (* keep *) ring_osc_drive4_ihp130 #(.NUM_STAGES(256)) mod_ro_256_drive4 (
-        .osc (ro_256_drive4)
     );
 
     (* keep *) ring_osc_prog_ihp130 #(.NUM_STAGES(8)) mod_ro_prog (
@@ -163,6 +154,7 @@ module tt_um_mlyoung_wedgetail (
 
     always_comb begin
         case (mux_in)
+            ROSC_NONE : o_rosc_mux_out = 0;
             ROSC_32_1 : o_rosc_mux_out = ro_32_1;
             ROSC_32_2 : o_rosc_mux_out = ro_32_2;
             ROSC_64 : o_rosc_mux_out = ro_64;
@@ -172,8 +164,6 @@ module tt_um_mlyoung_wedgetail (
             ROSC_128 : o_rosc_mux_out = ro_128;
             ROSC_32_AND : o_rosc_mux_out = ro_and;
             ROSC_32_DRIVE_4 : o_rosc_mux_out = ro_32_drive4;
-            ROSC_256 : o_rosc_mux_out = ro_256;
-            ROSC_256_DRIVE_4 : o_rosc_mux_out = ro_256_drive4;
             default : o_rosc_mux_out = 0;
         endcase
     end
