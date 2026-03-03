@@ -53,7 +53,7 @@ module tb ();
     localparam MISO = 5;
 
     task spi_write;
-        input addr;
+        input [1:0] addr;
         input [7:0] data;
 
         begin
@@ -61,10 +61,10 @@ module tb ();
 
             ui_in[SSN] = 0;
 
-            for (i = 0; i < 10; i = i + 1) begin
+            for (i = 0; i < 11; i = i + 1) begin
                 if (i == 0) ui_in[MOSI] = 0; // WRITE
-                else if (i == 1) ui_in[MOSI] = addr;
-                else ui_in[MOSI] = data[9 - i];
+                else if (i == 1 || i == 2) ui_in[MOSI] = addr[2 - i];
+                else ui_in[MOSI] = data[10 - i];
 
                 #10;
                 clk = 1;
@@ -119,8 +119,8 @@ module tb ();
         rst_n = 1;
         #1;
 
-        $display("WRITE TRANSACTION");
-        spi_write(0, 8'h3F);
+        $display("WRITE TRANSACTION 0x01");
+        spi_write(1, 8'h3F);
     end
 
 endmodule

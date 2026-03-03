@@ -16,7 +16,6 @@
 
 // SPI Decoder States. Don't specify values - let the compiler decide the optimal encoding.
 typedef enum logic [1:0] {
-  ST_IDLE    ,  // Waiting for Chip Select to assert, or nothing to do after a Commit
   ST_CMD     ,  // Receiving and decoding the Opcode and Chip Address
   ST_REG_ADDR,  // Receiving and storing the Register Address, if it's a Read or Write
   ST_DATA       // Transferring data bytes between the SPI Master and the regbank
@@ -34,7 +33,7 @@ parameter int unsigned OPCODE_W       = 1; // {Read, Write}
 parameter int unsigned CMD_W          = 1;
 
 // Width of address bus
-parameter int unsigned SPI_REG_ADDR_W = 1;  // There are 256 logical addresses from the SPI interface perspective
+parameter int unsigned SPI_REG_ADDR_W = 2;
 
 // Width of the register bank address, which is the same as the SPI_REG_ADDR_W in our case
 parameter int unsigned REGBANK_ADDR_W = SPI_REG_ADDR_W;
@@ -91,22 +90,13 @@ module spi_decoder (
   always_ff @(posedge i_spi_clk or posedge i_spi_ssn) begin : spi_fsm
     if (i_spi_ssn == 1'b1) begin
       $display("SPI: Reset");
-      spi_state      <= ST_IDLE;
+      spi_state      <= ST_CMD;
       start          <= 1'b0;
       write          <= 1'b0;
       rd_pulse       <= 1'b0;
       spi_addr       <= '0;
     end else begin
       unique case (spi_state)
-        ST_IDLE : begin
-          if (start == 1'b0) begin
-            // Only leave IDLE if this is the first SCLK after Chip Select asserts
-            start     <= 1'b1;
-            spi_state <= ST_CMD;
-            $display("ST_IDLE: Leaving idle");
-          end
-        end  // ST_IDLE
-
         ST_CMD : begin
             // This is a Write or Read Command
             spi_state <= ST_REG_ADDR;  // Register Address will be received next
@@ -118,7 +108,7 @@ module spi_decoder (
             if (opcode == SPI_OP_WRITE) begin
               $display("ST_CMD: Write op");
               write <= 1'b1;
-            end else begin  // opcode == SPI_OP_READ
+            end else if (opcode == SPI_OP_READ) begin  // opcode == SPI_OP_READ
               $display("ST_CMD: Read op");
               rd_pulse <= 1'b1;  // Pulse when there's a read to enable the status registers' HW write
             end
@@ -128,14 +118,14 @@ module spi_decoder (
           rd_pulse <= 1'b0;  // Clear the read pulse
           if (shift_cnt == ADDR_W_MAX) begin  // Bit 15
             // Capture the starting Register Address and go to DATA
-            // spi_addr  <= {shift_in_reg[6:0], i_spi_mosi};
-            spi_addr <= i_spi_mosi;
+            spi_addr  <= {shift_in_reg[0], i_spi_mosi};
             spi_state <= ST_DATA;
             $strobe("ST_REG_ADDR: Reg addr 0x%X", spi_addr);
           end
         end  // ST_REG_ADDR
 
         ST_DATA : begin
+          // TODO this doesn't seem right
           $strobe("ST_DATA: Idx %d", shift_cnt);
         end  // ST_DATA
       endcase

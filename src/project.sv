@@ -44,12 +44,13 @@ module tt_um_mlyoung_wedgetail (
 
     logic spi_decoder_wr_en;
     logic spi_decoder_rd_en;
-    logic spi_decoder_reg_addr;
+    logic [1:0] spi_decoder_reg_addr;
     logic [7:0] spi_wdata;
     logic [7:0] spi_rdata;
 
-    logic reg_reset;
-    logic [6:0] reg_echo;
+    logic [7:0] reg_reset;
+    logic [7:0] reg_echo1;
+    logic [7:0] reg_echo2;
     logic [7:0] reg_rosc_en_sel;
 
     spi_decoder spi_decoder_mod (
@@ -69,8 +70,9 @@ module tt_um_mlyoung_wedgetail (
         .clk (clk),
         .resetn (rst_n),
         .SYS_CTRL_RESET_q (reg_reset),
-        .SYS_CTRL_ECHO_q (reg_echo),
-        .ROSC_EN_SEL_data_q (reg_rosc_en_sel),
+        .ECHO1_DATA_q (reg_echo1),
+        .ECHO2_DATA_q (reg_echo2),
+        .ROSC_EN_SEL_DATA_q (reg_rosc_en_sel),
         .valid (spi_decoder_wr_en | spi_decoder_rd_en),
         .read (~spi_decoder_wr_en),
         .addr (spi_decoder_reg_addr), // take lower 1 bit, we only have 2 registers
