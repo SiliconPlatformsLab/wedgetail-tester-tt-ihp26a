@@ -11,12 +11,13 @@ CELL_NAME = "wedgetail_logo"
 GDS_NAME = "macros/wedgetail_logo.gds"
 
 # REFERENCES
-# so we don't clash: https://tinytapeout.com/specs/analog/
-# **NO METAL 5**
-# layers: https://ihp-open-pdk-docu.readthedocs.io/en/latest/layout_rules/02_layer_table.html#layer-table
-# layers: https://ihp-open-pdk-docu.readthedocs.io/en/latest/verification/lvs/02_layers.html
-# sky130 for comparison: https://skywater-pdk.readthedocs.io/en/main/rules/layers.html#gds-layers-information
-# stackup diagram: https://ihp-open-pdk-docu.readthedocs.io/en/latest/process_specs/01_01_main_process_cross_sec.html
+# layers:
+#   https://ihp-open-pdk-docu.readthedocs.io/en/latest/layout_rules/02_layer_table.html#layer-table
+#   https://ihp-open-pdk-docu.readthedocs.io/en/latest/verification/lvs/02_layers.html
+# sky130 for comparison:
+#   https://skywater-pdk.readthedocs.io/en/main/rules/layers.html#gds-layers-information
+# stackup diagram:
+#   https://ihp-open-pdk-docu.readthedocs.io/en/latest/process_specs/01_01_main_process_cross_sec.html
 
 BOUNDARY_LAYERS = [
     # IHP130
@@ -26,27 +27,14 @@ BOUNDARY_LAYERS = [
     (30, 23), # metal3 nofill
     (50, 23), # metal4 nofill
     (67, 23), # metal5 nofill
-
-    # SKY130
-    # (189, 0), # prBndry, boundary
-    # (62, 24), # cmm1, waffle-drop
-    # (105, 52), # cmm2, waffle-drop
-    # (107, 24), # cmm3, waffle-drop
-    # (112, 4), # cmm4, waffle-drop
-    # (117, 4), # cmm5, waffle-drop
 ]
 PIXEL_LAYERS = [
     (8, 0), # metal1 drawing
     (10, 0), # metal2 drawing
     (30, 0), # metal3 drawing
     (50, 0), # metal4 drawing
+    (67, 0), # metal5 drawing
     # (126, 0), # top metal 1, drawing
-
-    # SKY130
-    # (68, 20), # met1, drawing
-    # (69, 20), # met2, drawing
-    # # (70, 20), # met3, drawing
-    # # (71, 20), # met4, drawing
 ]
 PIXEL_SIZE = 0.5 # um
 VERBOSITY = 2
