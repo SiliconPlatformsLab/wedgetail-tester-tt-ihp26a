@@ -1,0 +1,70 @@
+* Wedgetail TCDE REV01
+
+* References used:
+* https://github.com/lip6/alliance-check-toolkit/blob/fea496a7fd83f4bd02d3c1d86cf4c42cfba63b9a/benchs/inverter/gf180mcu/test.spice
+* https://foss-eda-tools.googlesource.com/globalfoundries-pdk/libs/gf180mcu_fd_pr/+/23aa2fe36f589a57cdf76cb8eabadc9a45af8a1a/models/ngspice/design.ngspice
+* https://github.com/TinyTapeout/tt05-ringosc-counter/blob/main/spice/osc.spice
+
+* load the necessary IHP130 design setup stuff
+.lib /home/matt/.ciel/ihp-sg13g2/libs.tech/ngspice/models/cornerMOSlv.lib mos_tt
+.lib /home/matt/.ciel/ihp-sg13g2/libs.tech/ngspice/models/cornerCAP.lib cap_typ
+.include /home/matt/.ciel/ihp-sg13g2/libs.tech/ngspice/models/sg13g2_moslv_mod.lib
+
+* load our design
+* yes parasitics:
+.include ./runs/tt_um_mlyoung_wedgetail__tt_um_mlyoung_wedgetail/magic_CC/tt_um_mlyoung_wedgetail.pex.spice
+* no parasitics:
+*.include ./runs/ihp130/final/spice_rcx/wedgetail_top.rcx.spice
+
+* instantiate the circuit
+*Xdut VGND VPWR i_clk o_clk_raw o_ro_or o_ro_1 o_ro_2 wedgetail_top
+
+Xdut VGND VPWR clk ena rst_n ui_in[0] ui_in[1] ui_in[2]
++ ui_in[3] ui_in[4] ui_in[5] ui_in[6] ui_in[7] uio_in[0] uio_in[1] uio_in[2] uio_in[3]
++ uio_in[4] uio_in[5] uio_in[6] uio_in[7] uio_oe[0] uio_oe[1] uio_oe[2] uio_oe[3]
++ uio_oe[4] uio_oe[5] uio_oe[6] uio_oe[7] uio_out[0] uio_out[1] uio_out[2] uio_out[3]
++ uio_out[4] uio_out[5] uio_out[6] uio_out[7] uo_out[0] uo_out[1] uo_out[2] uo_out[3]
++ uo_out[4] uo_out[5] uo_out[6] uo_out[7]
++ tt_um_mlyoung_wedgetail
+
+* set gnd and power
+Vgnd VGND 0 0
+Vdd VPWR VGND 1.8
+
+* TODO: setup mux, set all ui_inputs LOW (tie to GND) except for dialing 0001 on the mux
+
+.param temp=24
+.param TEMP=24
+.options savecurrents
+
+* setup the transient analysis
+* TODO: do we want UIC? it makes the input pins weird
+.tran 100p 50n uic
+
+* increase iteration limit to make the simulation converge
+*.options itl1=10000
+
+.control
+run
+
+* save data
+write spice/data.spiceraw
++ "uo_out[0]" "uo_out[1]" "uo_out[2]" "uo_out[3]" "uo_out[4]" "uo_out[5]" "uo_out[6]" "uo_out[7]"
++ "ui_in[0]" "ui_in[1]" "ui_in[2]" "ui_in[3]" "ui_in[4]" "ui_in[5]" "ui_in[6]" "ui_in[7]"
+
+plot "uo_out[0]" "uo_out[1]" "uo_out[2]" "uo_out[3]" "uo_out[4]" "uo_out[5]" "uo_out[6]" "uo_out[7]"
+
+plot "ui_in[0]" "ui_in[1]" "ui_in[2]" "ui_in[3]" "ui_in[4]" "ui_in[5]" "ui_in[6]" "ui_in[7]"
+
+** FFT
+*linearize v(o_ro_1)
+*set specwindow=blackmanharris
+*fft v(o_ro_1)
+*
+** ylimit: exclude noise lobes introduced by blackmann-harris window (thanks Ling!)
+** xlimit: exclude what I think is extra spectral noise?
+*plot ylimit -100 50 xlimit 0 1e10 db(v(o_ro_1))
+
+.endc
+
+.save all
