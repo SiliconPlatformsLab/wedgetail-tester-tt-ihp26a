@@ -52,5 +52,10 @@ tasks:
     desc: Run sim
     dir: test
     cmds:
-      - verilator --timing --binary --trace -DSIM -j 24 tb.sv ../src/dpll.v ../src/project.sv ../src/spi_decoder.sv ../src/wedgetail_spi_rf.sv
+      - verilator --timing --binary --trace -DSIM -j 24 tb.sv ../src/dpll.v ../src/project.sv ../src/spi_decoder.sv ../src/wedgetail_spi_rf.sv ../src/logo.sv
       - ./obj_dir/Vtb
+
+  format:
+    desc: Format a file
+    cmds:
+      - verible-verilog-format --indentation_spaces 4 {{.CLI_ARGS}} | sponge {{.CLI_ARGS}}

@@ -86,7 +86,6 @@ module tt_um_mlyoung_wedgetail (
     (* keep *)
     wedgetail_logo logo();
 
-
     // OSCILLATORS
 
     logic ro_32_1;

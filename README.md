@@ -24,11 +24,16 @@ uv run
 uv pip install -r tt/requirements.txt
 source .venv/bin/activate.fish
 
+# setup the PDK
+ciel enable --pdk ihp-sg13g2 a2bf8ea81aee7d0fcdd6d62168edca0d7d0bcb08
+
 # generate the art GDS
 python make_art.py -v
 
-# setup the PDK
-ciel enable --pdk ihp-sg13g2 a2bf8ea81aee7d0fcdd6d62168edca0d7d0bcb08
+# convert to LEF
+./art_gds2lef.fish
+
+# then hit CTRL+D once it's done
 ```
 
 # Tiny Tapeout Verilog Project Template

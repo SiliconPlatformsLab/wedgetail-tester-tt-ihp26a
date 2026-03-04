@@ -121,12 +121,12 @@ module spi_decoder (
               end // opcode check
             end // CMD_W_MAX
 
-            $display("ST_CMD: Reading command");
+            //$display("ST_CMD: Reading command");
         end  // ST_CMD
 
         ST_REG_ADDR : begin
           rd_pulse <= 1'b0;  // Clear the read pulse
-          $strobe("ST_REG_ADDR: Waiting");
+          //$strobe("ST_REG_ADDR: Waiting");
           if (shift_cnt == ADDR_W_MAX) begin
             // Capture the starting Register Address and go to DATA
             spi_addr  <= {shift_in_reg[6:0], i_spi_mosi};
