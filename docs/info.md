@@ -10,7 +10,7 @@ You can also include images in this folder and reference them in the markdown. E
 ## How it works
 
 Wedgetail is a project that is part of my PhD thesis. This particular design is for Test, Calibration and
-Design Exploration (TCDE), to assess the effectiveness of the project in high-radiation environments.
+Design Exploration (TCDE), to assess the effectiveness of the project on real silicon.
 
 The design consists of a configurable array of ring oscillators, a Digital Phase Locked Loop (DPLL),
 and an SPI register file generated with SystemRDL.

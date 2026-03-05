@@ -139,13 +139,15 @@ module tb ();
 
             #50;
 
-            $display("READ TRANSACTION 0x00");
+            $display("READ TRANSACTION 0x%X", i);
             spi_read(i, rdata);
             $display("rdata: 0x%X", rdata);
 
             assert (rdata == 8'h3F);
 
             #100;
+            $display("");
+            $display("");
         end
 
         // readback
