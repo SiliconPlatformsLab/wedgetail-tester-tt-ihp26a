@@ -48,8 +48,8 @@ oscillate.
 
 ### DPLL
 A digital-phased lock loop is included, written by [jsloan256](https://github.com/jsloan256/dpll). Clock the
-main module at 2 MHz, then pass a 300 KHz signal into the "DPLL CLK 300 KHz" input port. The output port "DPLL
-CLK" will have the signal passing through the DPLL, and the port "DPLL CLK FMULT" will have the signal passing
+main module at 2 MHz, then pass a 300 KHz signal into the `DPLL CLK 300 KHz` input port. The output port `DPLL
+CLK` will have the signal passing through the DPLL, and the port `DPLL CLK FMULT` will have the signal passing
 through an 8x frequency multiplier.
 
 ### SPI
@@ -65,14 +65,14 @@ For the register file documentation, see the end of this document.
 
 ### SPI Programmable Ring Oscillator
 A ring oscillator is included that can be programmed on the fly by SPI. Write to the `ROSC_EN_SEL` register to
-configure the "coding" of the ring oscillator. This coding is 1-hot coded, i.e. setting a bit will either
-enable that inverter, or pass it through. For example, if `ROSC_EN_SEL[1]` is set to `1`, the second inverter
-will be enabled, and if set to `0`, it will be passed through.
+configure the "coding" of the ring oscillator. In this coding, each bit in `ROSC_EN_SEL` represents two
+inverters in the ring oscillator. For example, if `ROSC_EN_SEL[0] == 1`, then `inverter[0]` AND `inverter[1]`
+will be powered on.
 
-The ring oscillator output is routed to "ROSC SPI OUT".
+The ring oscillator output is routed to `ROSC SPI OUT`.
 
 ### Warnings
-- Do not test the DPLL and SPI at the same time, as they run off the same clock
+- Do not test the DPLL and SPI at the same time, as they run off the same clock.
 
 ## External hardware
 - None required

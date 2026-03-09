@@ -7,6 +7,7 @@ module ring_osc_prog_ihp130 # (
     parameter int NUM_STAGES = 63
 ) (
     // One-hot programming for the stages. 1 = this stage is enabled, 0 = pass-through.
+    // Controls two bits, e.g. coding[0] = ringosc[1:0]
     input logic[NUM_STAGES-1:0] coding,
 
     // Enable
@@ -26,7 +27,7 @@ module ring_osc_prog_ihp130 # (
             (* keep *) (* dont_touch *) inv_en_ihp130 inv(
                 .o_sig(fabric[i + 1]),
                 .i_sig(fabric[i]),
-                .i_en(coding[i] & en)
+                .i_en(coding[$rtoi($floor(i / 2))] & en)
             );
         end
     endgenerate
