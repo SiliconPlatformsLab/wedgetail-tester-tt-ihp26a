@@ -17,8 +17,6 @@
 *.include ./runs/ihp130/final/spice_rcx/wedgetail_top.rcx.spice
 
 * instantiate the circuit
-*Xdut VGND VPWR i_clk o_clk_raw o_ro_or o_ro_1 o_ro_2 wedgetail_top
-
 Xdut VGND VPWR clk ena rst_n ui_in[0] ui_in[1] ui_in[2]
 + ui_in[3] ui_in[4] ui_in[5] ui_in[6] ui_in[7] uio_in[0] uio_in[1] uio_in[2] uio_in[3]
 + uio_in[4] uio_in[5] uio_in[6] uio_in[7] uio_oe[0] uio_oe[1] uio_oe[2] uio_oe[3]
@@ -31,7 +29,17 @@ Xdut VGND VPWR clk ena rst_n ui_in[0] ui_in[1] ui_in[2]
 Vgnd VGND 0 0
 Vdd VPWR VGND 1.8
 
-* TODO: setup mux, set all ui_inputs LOW (tie to GND) except for dialing 0001 on the mux
+* tie all of these to ground
+Vin0 ui_in[0] VGND 0
+Vin1 ui_in[1] VGND 0
+Vin2 ui_in[2] VGND 0
+Vin3 ui_in[3] VGND 0
+Vin4 ui_in[4] VGND 0
+Vin5 ui_in[5] VGND 0
+Vin6 ui_in[6] VGND 0
+Vin7 ui_in[7] VGND 0
+* FIXME this should be set high but it blows it up
+*Vin8 ena VGND 1.8
 
 .param temp=24
 .param TEMP=24
@@ -50,11 +58,11 @@ run
 * save data
 write spice/data.spiceraw
 + "uo_out[0]" "uo_out[1]" "uo_out[2]" "uo_out[3]" "uo_out[4]" "uo_out[5]" "uo_out[6]" "uo_out[7]"
-+ "ui_in[0]" "ui_in[1]" "ui_in[2]" "ui_in[3]" "ui_in[4]" "ui_in[5]" "ui_in[6]" "ui_in[7]"
++ "ui_in[0]" "ui_in[1]" "ui_in[2]" "ui_in[3]" "ui_in[4]" "ui_in[5]" "ui_in[6]" "ui_in[7]" "clk" "ena" "rst_n"
 
 plot "uo_out[0]" "uo_out[1]" "uo_out[2]" "uo_out[3]" "uo_out[4]" "uo_out[5]" "uo_out[6]" "uo_out[7]"
 
-plot "ui_in[0]" "ui_in[1]" "ui_in[2]" "ui_in[3]" "ui_in[4]" "ui_in[5]" "ui_in[6]" "ui_in[7]"
+plot "ui_in[0]" "ui_in[1]" "ui_in[2]" "ui_in[3]" "ui_in[4]" "ui_in[5]" "ui_in[6]" "ui_in[7]" "ena"
 
 ** FFT
 *linearize v(o_ro_1)

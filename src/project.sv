@@ -124,8 +124,8 @@ module tt_um_mlyoung_wedgetail (
 
     // NOTE this will run continuously I guess, but we can probably just subtract it from background power
     // draw
-    (* keep *) ring_osc_ihp130 #(.NUM_STAGES(32)) mod_ro_32_raw (
-        .en(ena),
+    (* keep *) ring_osc_drive4_ihp130 #(.NUM_STAGES(32)) mod_ro_32_raw (
+        // .en(ena),
         .osc (o_rosc_32_no_mux)
     );
 

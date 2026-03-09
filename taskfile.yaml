@@ -66,7 +66,7 @@ tasks:
       # Magic
       - uv run kpex --pdk ihp_sg13g2 --magic --magicrc ~/.ciel/ihp-sg13g2/libs.tech/magic/ihp-sg13g2.magicrc --out_dir runs --gds ./runs/wokwi/final/gds/tt_um_mlyoung_wedgetail.gds --log_level debug
       # 2.5D
-      - uv run kpex --pdk ihp_sg13g2 --2.5D --out_dir runs --gds ./runs/wokwi/final/gds/tt_um_mlyoung_wedgetail.gds --log_level debug
-      # FasterCap
-      - uv run kpex --pdk ihp_sg13g2 --fastercap --out_dir runs --gds ./runs/wokwi/final/gds/tt_um_mlyoung_wedgetail.gds --log_level debug
+      # - uv run kpex --pdk ihp_sg13g2 --2.5D --out_dir runs --gds ./runs/wokwi/final/gds/tt_um_mlyoung_wedgetail.gds --log_level debug
+      # # FasterCap
+      # - uv run kpex --pdk ihp_sg13g2 --fastercap --out_dir runs --gds ./runs/wokwi/final/gds/tt_um_mlyoung_wedgetail.gds --log_level debug
 
