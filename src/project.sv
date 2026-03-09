@@ -182,10 +182,18 @@ module tt_um_mlyoung_wedgetail (
         .clk8x_fout (o_dpll_clk_fmult)
     );
 
+    // LFSR
+    logic lfsr_logic;
+    lfsr lfsr  (
+        .clk (clk),
+        .rst_n (rst_n),
+        .osc (lfsr_logic)
+    );
+
     // ASSIGN OUTPUTS
 
     assign uo_out[0] = o_rosc_mux_out;
-    assign uo_out[1] = 0;
+    assign uo_out[1] = lfsr_logic;
     assign uo_out[2] = o_rosc_32_no_mux;
     assign uo_out[3] = o_dpll_clk;
     assign uo_out[4] = o_dpll_clk_fmult;

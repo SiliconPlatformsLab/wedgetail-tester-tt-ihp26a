@@ -71,6 +71,10 @@ will be powered on.
 
 The ring oscillator output is routed to `ROSC SPI OUT`.
 
+### LFSR
+The pin `LFSR` is the 1-bit output of a 16-bit LFSR. It cannot be turned off, lol, sorry. But you can reset it
+with the TinyTapeout system reset.
+
 ### Warnings
 - Do not test the DPLL and SPI at the same time, as they run off the same clock.
 
