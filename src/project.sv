@@ -15,7 +15,8 @@ typedef enum logic [3:0] {
     ROSC_31 = 4'd6,
     ROSC_128 = 4'd7,
     ROSC_32_AND = 4'd8,
-    ROSC_32_DRIVE_4 = 4'd9
+    ROSC_32_DRIVE_8 = 4'd9,
+    ROSC_32_DRIVE_16 = 4'd10
 } RingOscType;
 
 module tt_um_mlyoung_wedgetail (
@@ -96,7 +97,8 @@ module tt_um_mlyoung_wedgetail (
     logic ro_and;
     logic ro_31;
     logic ro_128;
-    logic ro_32_drive4;
+    logic ro_32_drive8;
+    logic ro_32_drive16;
 
     RingOscType mux_in;
     assign mux_in = RingOscType'(ui_in[3:0]);
@@ -124,8 +126,8 @@ module tt_um_mlyoung_wedgetail (
 
     // NOTE this will run continuously I guess, but we can probably just subtract it from background power
     // draw
-    (* keep *) ring_osc_drive4_ihp130 #(.NUM_STAGES(32)) mod_ro_32_raw (
-        // .en(ena),
+    (* keep *) ring_osc_ihp130 #(.NUM_STAGES(32)) mod_ro_32_raw (
+        .en(ena),
         .osc (o_rosc_32_no_mux)
     );
 
@@ -140,8 +142,13 @@ module tt_um_mlyoung_wedgetail (
     );
 
     // FIXME needs an enable
-    (* keep *) ring_osc_drive4_ihp130 #(.NUM_STAGES(32)) mod_ro_32_drive4 (
-        .osc (ro_32_drive4)
+    (* keep *) ring_osc_drive8_ihp130 #(.NUM_STAGES(32)) mod_ro_32_drive8 (
+        .osc (ro_32_drive8)
+    );
+
+    // FIXME needs an enable
+    (* keep *) ring_osc_drive16_ihp130 #(.NUM_STAGES(32)) mod_ro_32_drive16 (
+        .osc (ro_32_drive16)
     );
 
     (* keep *) ring_osc_prog_ihp130 #(.NUM_STAGES(8)) mod_ro_prog (
@@ -167,7 +174,8 @@ module tt_um_mlyoung_wedgetail (
             ROSC_31 : o_rosc_mux_out = ro_31;
             ROSC_128 : o_rosc_mux_out = ro_128;
             ROSC_32_AND : o_rosc_mux_out = ro_and;
-            ROSC_32_DRIVE_4 : o_rosc_mux_out = ro_32_drive4;
+            ROSC_32_DRIVE_8 : o_rosc_mux_out = ro_32_drive8;
+            ROSC_32_DRIVE_16 : o_rosc_mux_out = ro_32_drive16;
             default : o_rosc_mux_out = 0;
         endcase
     end

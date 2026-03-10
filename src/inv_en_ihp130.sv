@@ -11,7 +11,8 @@ module inv_en_ihp130 (
 );
     logic inverted;
 
-    (* keep *) (* dont_touch *) sg13g2_inv_1 inv(
+    // This is required otherwise the results suck (see SPICE), we gotta use x4 drive current
+    (* keep *) (* dont_touch *) sg13g2_inv_4 inv(
         .Y(inverted),
         .A(i_sig)
     );
